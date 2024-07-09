@@ -26,4 +26,3 @@ export default HomeContent;
 
 //Let's try to navigate with homescreen to the app timer with the button. Just by
 // using the navigation container. 
-

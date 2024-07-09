@@ -18,7 +18,7 @@ const SettingsScreen = () => {
 
   // Function to toggle the feedback audio switch
   const toggleAudioSwitch = () => setIsAudioEnabled(previousState => !previousState);
-  console.log('Is audio enabled', isAudioEnabled);
+
   // Function to toggle the random start switch
   const toggleRandomSwitch = () => setIsRandomEnabled(previousState => !previousState);
 
