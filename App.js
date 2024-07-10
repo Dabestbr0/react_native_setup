@@ -1,11 +1,11 @@
-import 'react-native-gesture-handler'; // Add this import if not already present
+import 'react-native-gesture-handler';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
-import { StyleSheet } from 'react-native';
 import LoginScreen from './screens/LoginScreen';
 import HomeScreen from './screens/HomeScreen';
-import AppNavigator from './navigation/AppNavigator'; // Assuming AppNavigator contains additional navigations
+import HomeContent from './screens/HomeContent'; // Import your HomeContent screen
+import RunTimerStartScreen from './screens/RunTimerScreen'; // Import your RunTimerStartScreen
 import { SettingsProvider } from './contexts/SettingsData'; // Assuming SettingsProvider is for context
 
 const Stack = createNativeStackNavigator();
@@ -14,21 +14,13 @@ export default function App() {
   return (
     <SettingsProvider>
       <NavigationContainer>
-        <Stack.Navigator>
-          <Stack.Screen options={{ headerShown: false }} name="Login" component={LoginScreen} />
-          <Stack.Screen name="Home" component={HomeScreen} />
-          <Stack.Screen name="AppNavigator" component={AppNavigator} />
+        <Stack.Navigator initialRouteName="Login">
+          <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="Home" component={HomeContent} />
+          <Stack.Screen name="HomeContent" component={HomeContent} />
+          <Stack.Screen name="RunTimerStart" component={RunTimerStartScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </SettingsProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
