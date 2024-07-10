@@ -6,7 +6,14 @@ import LoginScreen from './screens/LoginScreen';
 //import HomeScreen from './screens/HomeScreen';
 import HomeContent from './screens/HomeContent'; // Import your HomeContent screen
 import RunTimerStartScreen from './screens/RunTimerScreen'; // Import your RunTimerStartScreen
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { SettingsProvider } from './contexts/SettingsData'; // Assuming SettingsProvider is for context
+import Ionicons from 'react-native-vector-icons/Ionicons'
+
+import ProfilePage from './screens/ProfilePage';
+import SettingsScreen from './screens/SettingsScreen';
+
+const Tab = createBottomTabNavigator();
 
 const Stack = createNativeStackNavigator();
 

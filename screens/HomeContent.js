@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, Button, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { auth } from '../services/firebase';
+import { auth } from '../services/firebase'; 
 
 const HomeContent = () => {
   const navigation = useNavigation();
@@ -36,8 +36,6 @@ const HomeContent = () => {
   );
 };
 
-export default HomeContent;
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -62,3 +60,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
+
+export default HomeContent;
