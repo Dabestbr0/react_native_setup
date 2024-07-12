@@ -37,6 +37,9 @@ npm install react-native-paper
 
 npm install @react-native-community/slider
 
+npm install react-native-sound
+
+
 
 Next type in 'npm start' to run the app.
 

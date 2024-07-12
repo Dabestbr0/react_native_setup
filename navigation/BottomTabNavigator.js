@@ -17,7 +17,6 @@ const BottomTabNavigator = () => (
     <BottomTab.Screen name="Profile" component={ProfilePage} />
     <BottomTab.Screen name="Tabs" component={TopTabNavigator} />
   </BottomTab.Navigator>
-
 );
 
 export default BottomTabNavigator;
