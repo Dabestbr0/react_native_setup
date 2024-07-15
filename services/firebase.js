@@ -13,6 +13,19 @@ const firebaseConfig = {
   appId: "1:114759002890:web:0477136cfecf4a93a328f3"
 };
 
+//for test kosuke
+/*
+const firebaseConfig = {
+    apiKey: "AIzaSyALDEA-_yEthfw-vSUnGdUv8rzPFLJVdcU",
+    authDomain: "swift-start-13833.firebaseapp.com",
+    projectId: "swift-start-13833",
+    storageBucket: "swift-start-13833.appspot.com",
+    messagingSenderId: "572444694882",
+    appId: "1:572444694882:web:68d2f9d107e4e7a375343b"
+};
+
+*/
+
 // Initialize Firebase
 let app;
 if (getApps().length === 0) {

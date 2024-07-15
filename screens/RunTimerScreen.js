@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, Button, StyleSheet, TouchableOpacity } from 'react-native';
 import { SettingsContext } from '../contexts/SettingsData'; 
 
 const RunTimerStart = () => {
@@ -50,7 +50,7 @@ const RunTimerStart = () => {
     <View style={styles.container}>
       <Text style={styles.content}>Settings Context:</Text>
       <Text style={styles.content}>
-        isVibrationEnabled: {isVibrationEnabled.toString()}
+        isVibrationEnabled: {"isVibrationEnabled.toString()"}
       </Text>
       <Text style={styles.content}>
         isAudioEnabled: {isAudioEnabled.toString()}
@@ -71,6 +71,12 @@ const RunTimerStart = () => {
         {word}
         {Timer}
       </Text>
+      <TouchableOpacity
+        //onPress={}
+        style={styles.button}
+      >
+        <Text style={styles.buttonText}>Stop</Text>
+      </TouchableOpacity>
     </View>   
   );
 };
@@ -91,8 +97,20 @@ const styles = StyleSheet.create({
     color: '#FF0000',
     marginBottom: 10,
     fontWeight: 'bold',
-  }
-
+  },
+  button: {
+    backgroundColor: '#0782F9',
+    width: '30%',
+    padding: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  buttonText: {
+    color: 'white',
+    fontWeight: '700',
+    fontSize: 16,
+  },  
 });
 
 export default RunTimerStart;
