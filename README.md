@@ -39,6 +39,13 @@ npm install @react-native-community/slider
 
 npm install react-native-sound
 
+expo install expo-location
+
+npm install react-native-pager-view
+
+expo install react-native-maps
+
+expo install @react-native-async-storage/async-storage @react-native-community/slider @react-navigation/bottom-tabs @react-navigation/material-top-tabs @react-navigation/native @react-navigation/native-stack @react-navigation/stack expo expo-av expo-location expo-status-bar firebase react react-native react-native-calendars react-native-gesture-handler react-native-maps react-native-pager-view react-native-paper react-native-reanimated react-native-safe-area-context react-native-screens react-native-vector-icons
 
 
 Next type in 'npm start' to run the app.

@@ -2,13 +2,14 @@ import 'react-native-gesture-handler';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import LoginScreen from './screens/LoginScreen';
 import HomeContent from './screens/HomeContent';
 import RunTimerStartScreen from './screens/RunTimerScreen';
 import RunCalendar from './screens/RunCalendar';
 import { SettingsProvider } from './contexts/SettingsData';
 import BottomTabNavigator from './navigation/BottomTabNavigator';
+import MapView from 'react-native-maps';
 
 const Stack = createNativeStackNavigator();
 

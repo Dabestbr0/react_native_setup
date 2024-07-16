@@ -1,25 +1,34 @@
-// Import the necessary libraries and components
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native'; // Import View, Text, and StyleSheet from React Native
+import React, { useEffect, useState } from 'react';
+import { Text, View } from 'react-native';
+import * as Location from 'expo-location';
 
-// Define the TopTab2 functional component
-const TopTab2 = () => (
-  // Render a View with some text
-  <View style={styles.tabContent}>
-    <Text>Top Tab 2 Content</Text>
-  </View>
-);
+export default function TopTab2() {
+  const [location, setLocation] = useState(null);
+  const [errorMsg, setErrorMsg] = useState(null);
 
-// Define the styles for the component using StyleSheet
-const styles = StyleSheet.create({
-  // Style for the tabContent view
-  tabContent: {
-    flex: 1, // Make the view take up the entire screen
-    justifyContent: 'center', // Center the content vertically
-    alignItems: 'center', // Center the content horizontally
-  },
-});
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        setErrorMsg('Permission to access location was denied');
+        return;
+      }
 
-// Export the TopTab2 component as the default export
-// This allows other parts of the application to import and use the TopTab2 component
-export default TopTab2;
+      let location = await Location.getCurrentPositionAsync({});
+      setLocation(location);
+    })();
+  }, []);
+
+  let text = 'Waiting..';
+  if (errorMsg) {
+    text = errorMsg;
+  } else if (location) {
+    text = JSON.stringify(location);
+  }
+
+  return (
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <Text>{text}</Text>
+    </View>
+  );
+}
