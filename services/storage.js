@@ -18,24 +18,13 @@ export const storeRunData = async (runData) => {
 
 export const getRunData = async () => {
     try {
-        const user = auth().currentUser;
-        if (user) {
-            const cachedData = await AsyncStorage.getItem('runs');
-            if (cachedData) {
-                return JSON.parse(cachedData);
-            } else {
-                const runCollection = await firestore().collection('users').doc(user.uid).collection('runs').get();
-                const runData = runCollection.docs.map(doc => doc.data());
-                await AsyncStorage.setItem('runs', JSON.stringify(runData));
-                return runData;
-            }
-        } else {
-            console.error('No user is logged in');
-        }
+      const data = await AsyncStorage.getItem('runData');
+      return data ? JSON.parse(data) : [];
     } catch (error) {
-        console.error('Failed to fetch run data', error);
+      console.error('Error fetching run data', error);
+      return [];
     }
-};
+  };
 
 const syncLocalWithFirestore = async () => {
     try {

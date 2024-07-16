@@ -16,11 +16,11 @@ const HomeContent = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.topRightContainer}>Email: { auth.currentUser?.email }</Text>
+      <Text>Email: { auth.currentUser?.email }</Text>
       <View style={styles.content}>
         <Text>Home Content</Text>
         <TouchableOpacity
-          style={[styles.button, styles.redButton]}
+          style={styles.button}
           onPress={() => navigation.navigate('RunTimerStart')}
         >
           <Text style={styles.buttonText}>Start</Text>
@@ -49,27 +49,16 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: '#0782F9',
-    width: '30%',
+    width: '60%',
     padding: 15,
     borderRadius: 10,
     alignItems: 'center',
     marginTop: 20,
   },
-  redButton: {
-    backgroundColor: '#FF0000', // Red color
-  },
   buttonText: {
     color: 'white',
     fontWeight: '700',
     fontSize: 16,
-  },
-  topRightContainer: {
-    position: 'absolute',
-    top: 20, // Adjust the value to position the container from the top
-    right: 20, // Adjust the value to position the container from the right
-    backgroundColor: '#ADD8E6',
-    padding: 10, // Adjust padding as needed
-    borderRadius: 10, // Optional: Adjust if you want rounded corners
   },
 });
 
