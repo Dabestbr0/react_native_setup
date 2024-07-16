@@ -62,7 +62,7 @@ const HomeScreen = ({ navigation }) => {
       {/* Add other existing content here */}
       <Button
         title="View Run History"
-        onPress={() => navigation.navigate('RunCalendar')}
+        onPress={() => navigation.navigate('Run Calendar')}
       />
     </View>
   );

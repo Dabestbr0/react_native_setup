@@ -28,7 +28,7 @@ const BottomTabNavigator = () => (
           case 'Tabs':
             iconName = focused ? 'grid' : 'grid-outline';
             break;
-          case 'RunCalendar':
+          case 'Run Calendar':
             iconName = focused ? 'calendar' : 'calendar-outline';
             break;
           default:
@@ -49,7 +49,7 @@ const BottomTabNavigator = () => (
     <BottomTab.Screen name="Settings" component={SettingsScreen} />
     <BottomTab.Screen name="Profile" component={ProfilePage} />
     <BottomTab.Screen name="Tabs" component={TopTabNavigator} />
-    <BottomTab.Screen name="RunCalendar" component={RunCalendar} />
+    <BottomTab.Screen name="Run Calendar" component={RunCalendar} />
   </BottomTab.Navigator>
 );
 

@@ -12,7 +12,7 @@ function AppNavigator() {
       <Stack.Navigator initialRouteName="Home">
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="RunTimer" component={RunTimerScreen} />
-        <Stack.Screen name="RunCalendar" component={RunCalendar} /> {/* Add the new screen here */}
+        <Stack.Screen name="Run Calendar" component={RunCalendar} /> {/* Add the new screen here */}
       </Stack.Navigator>
     </NavigationContainer>
   );
