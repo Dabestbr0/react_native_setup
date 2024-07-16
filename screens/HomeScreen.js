@@ -1,53 +1,83 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React from 'react'
-import { auth } from '../services/firebase'
-import { useNavigation } from '@react-navigation/native'
+// import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+// import React from 'react'
+// import { auth } from '../services/firebase'
+// import { useNavigation } from '@react-navigation/native'
 
-const HomeScreen = () => {
+// const HomeScreen = () => {
 
-  const navigation = useNavigation()
+//   const navigation = useNavigation()
 
-  const handleSignOut = () =>{
-    auth
-    .signOut()
-    .then(() => {
-      navigation.replace("Login")
-    })
-    .catch(error => alert(error.message))
-  }
+//   const handleSignOut = () =>{
+//     auth
+//     .signOut()
+//     .then(() => {
+//       navigation.replace("Login")
+//     })
+//     .catch(error => alert(error.message))
+//   }
 
+//   return (
+//     <View style={styles.container}>
+//       <Text>Email: { auth.currentUser?.email }</Text>
+//       <TouchableOpacity
+//         onPress={handleSignOut}
+//         style={styles.button}
+//       >
+//         <Text style={styles.buttonText}>Sign out</Text>
+//       </TouchableOpacity>
+//     </View>
+//   )
+// }
+
+// export default HomeScreen
+
+// const styles = StyleSheet.create({
+//   container:{
+//     flex: 1,
+//     justifyContent: 'center',
+//     alignItems: 'center'
+//   },
+//   button: {
+//     backgroundColor: '#0782F9',
+//     width: '60%',
+//     padding: 15,
+//     borderRadius: 10,
+//     alignItems: 'center',
+//     marginTop: 40,
+//   },
+//   buttonText: {
+//     color: 'white',
+//     fontWeight: '700',
+//     fontSize: 16,
+//   },
+// })
+
+import React from 'react';
+import { View, Text, Button, StyleSheet } from 'react-native';
+
+const HomeScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
-      <Text>Email: { auth.currentUser?.email }</Text>
-      <TouchableOpacity
-        onPress={handleSignOut}
-        style={styles.button}
-      >
-        <Text style={styles.buttonText}>Sign out</Text>
-      </TouchableOpacity>
+      <Text style={styles.title}>Home Screen</Text>
+      {/* Add other existing content here */}
+      <Button
+        title="View Run History"
+        onPress={() => navigation.navigate('RunCalendar')}
+      />
     </View>
-  )
-}
-
-export default HomeScreen
+  );
+};
 
 const styles = StyleSheet.create({
-  container:{
+  container: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center'
-  },
-  button: {
-    backgroundColor: '#0782F9',
-    width: '60%',
-    padding: 15,
-    borderRadius: 10,
     alignItems: 'center',
-    marginTop: 40,
   },
-  buttonText: {
-    color: 'white',
-    fontWeight: '700',
-    fontSize: 16,
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
   },
-})
+});
+
+export default HomeScreen;
