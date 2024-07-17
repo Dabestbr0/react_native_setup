@@ -22,7 +22,7 @@ const SettingsScreen = () => {
 
   return (
     <ImageBackground
-      source={require('../assets/settingsbgm.webp')} // Ensure the image is saved in this path
+      source={require('../assets/settingsbgm.png')} 
       style={styles.background}
     >
       <View style={styles.container}>
