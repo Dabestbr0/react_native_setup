@@ -43,6 +43,7 @@ const BottomTabNavigator = () => (
       tabBarStyle: {
         display: 'flex',
       },
+      headerShown: false, // This will hide the header for all screens
     })}
   >
     <BottomTab.Screen name="Home" component={HomeContent} />
@@ -54,5 +55,3 @@ const BottomTabNavigator = () => (
 );
 
 export default BottomTabNavigator;
-
-

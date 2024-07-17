@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, Image } from 'react-native';
+import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, Image, ImageBackground } from 'react-native';
 import { auth } from '../services/firebase';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
 import { useNavigation } from '@react-navigation/native';
@@ -39,41 +39,54 @@ const LoginScreen = () => {
     };
 
     return (
-        <KeyboardAvoidingView style={styles.container} behavior="padding">
-            <Image source={require('../assets/applogosprintoclock.png')} style={styles.logo} />
-            <View style={styles.inputContainer}>
-                <TextInput
-                    placeholder="Email"
-                    value={email}
-                    onChangeText={text => setEmail(text)}
-                    style={styles.input}
-                />
-                <TextInput
-                    placeholder="Password"
-                    value={password}
-                    onChangeText={text => setPassword(text)}
-                    style={styles.input}
-                    secureTextEntry
-                />
-            </View>
-            <View style={styles.buttonContainer}>
-                <TouchableOpacity onPress={handleLogin} style={styles.button}>
-                    <Text style={styles.buttonText}>Login</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={handleSignUp} style={[styles.button, styles.buttonOutline]}>
-                    <Text style={styles.buttonOutlineText}>Register</Text>
-                </TouchableOpacity>
-            </View>
-        </KeyboardAvoidingView>
+        <ImageBackground source={require('../assets/background.png')} style={styles.background}>
+            <View style={styles.overlay} />
+            <KeyboardAvoidingView style={styles.container} behavior="padding">
+                <Image source={require('../assets/applogosprintoclock.png')} style={styles.logo} />
+                <View style={styles.inputContainer}>
+                    <TextInput
+                        placeholder="Email"
+                        value={email}
+                        onChangeText={text => setEmail(text)}
+                        style={styles.input}
+                    />
+                    <TextInput
+                        placeholder="Password"
+                        value={password}
+                        onChangeText={text => setPassword(text)}
+                        style={styles.input}
+                        secureTextEntry
+                    />
+                </View>
+                <View style={styles.buttonContainer}>
+                    <TouchableOpacity onPress={handleLogin} style={styles.button}>
+                        <Text style={styles.buttonText}>Login</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={handleSignUp} style={[styles.button, styles.buttonOutline]}>
+                        <Text style={styles.buttonOutlineText}>Register</Text>
+                    </TouchableOpacity>
+                </View>
+            </KeyboardAvoidingView>
+        </ImageBackground>
     );
 };
 
 const styles = StyleSheet.create({
+    background: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    overlay: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    },
     container: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#ADD8E6'
+        width: '100%',
+        paddingHorizontal: 20,
     },
     logo: {
         width: 300,
@@ -81,20 +94,21 @@ const styles = StyleSheet.create({
         marginBottom: 50,
     },
     inputContainer: {
-        width: '80%',
+        width: '100%',
     },
     input: {
         backgroundColor: 'white',
         paddingHorizontal: 20,
         paddingVertical: 10,
         borderRadius: 10,
-        marginTop: 5,
+        marginTop: 10,
+        fontSize: 16,
     },
     buttonContainer: {
-        width: '60%',
+        width: '100%',
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 40,
+        marginTop: 30,
     },
     button: {
         backgroundColor: '#0782F9',
@@ -102,10 +116,11 @@ const styles = StyleSheet.create({
         padding: 15,
         borderRadius: 10,
         alignItems: 'center',
+        marginTop: 10,
     },
     buttonOutline: {
         backgroundColor: 'white',
-        marginTop: 5,
+        marginTop: 10,
         borderColor: '#0782F9',
         borderWidth: 2,
     },
