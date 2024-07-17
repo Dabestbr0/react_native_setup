@@ -120,9 +120,11 @@ const RunTimerStart = () => {
   }, [isStopwatchRunning]);
 
   const endRun = async () => {
-    setIsStopwatchRunning(false);
     clearInterval(stopwatchIntervalRef.current);
     clearInterval(timerIntervalRef.current);
+
+    setIsStopwatchRunning(false);
+    setRunning(false);
 
     const finishTime = new Date(); // Record finish time
     setFinishTime(finishTime);
@@ -145,7 +147,6 @@ const RunTimerStart = () => {
       console.error('Failed to save run data', error);
     }
 
-    setRunning(false);
     navigation.navigate('Home'); // Navigate back to the Home screen
   };
 
