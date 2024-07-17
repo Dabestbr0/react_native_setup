@@ -4,6 +4,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Calendar } from 'react-native-calendars';
 import { format } from 'date-fns';
 import { useIsFocused } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 
 const RunCalendar = () => {
   const [runHistory, setRunHistory] = useState([]);
@@ -65,7 +67,7 @@ const RunCalendar = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Calendar
         markedDates={getMarkedDates()}
         onDayPress={(day) => setSelectedDate(day.dateString)}
@@ -110,7 +112,7 @@ const RunCalendar = () => {
         )}
         ListEmptyComponent={<Text style={styles.noDataText}>No run history available for this date.</Text>}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -118,6 +120,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f2f2f2',
+    paddingTop: 'true',
   },
   runItem: {
     backgroundColor: '#ffffff',
@@ -159,4 +162,3 @@ const styles = StyleSheet.create({
 });
 
 export default RunCalendar;
-

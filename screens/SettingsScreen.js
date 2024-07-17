@@ -4,6 +4,8 @@ import Slider from '@react-native-community/slider';
 import { SettingsContext } from '../contexts/SettingsData';
 import Icon from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 
 const SettingsScreen = () => {
   const { 
@@ -25,7 +27,7 @@ const SettingsScreen = () => {
       source={require('../assets/settingsbgm.png')} 
       style={styles.background}
     >
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container}>
         <Text style={styles.title}>System Settings</Text>
         
         <View style={styles.setting}>
@@ -95,7 +97,7 @@ const SettingsScreen = () => {
             thumbTintColor="#ff7043"
           />
         </View>
-      </View>
+      </SafeAreaView>
     </ImageBackground>
   );
 }
@@ -109,7 +111,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     width: '100%',
-    padding: 16,
+    padding: 10,
   },
   title: {
     fontSize: 22,
