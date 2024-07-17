@@ -1,13 +1,13 @@
 import React, { useContext, useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Image, Vibration, Button } from 'react-native';
 import { Audio } from 'expo-av';
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation hook
+import { useNavigation } from '@react-navigation/native';
 import { SettingsContext } from '../contexts/SettingsData';
 import * as Progress from 'react-native-progress';
-import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const RunTimerStart = () => {
-  const navigation = useNavigation(); // Initialize the navigation object
+  const navigation = useNavigation();
   const {
     OnYourMark_interval,
     GetSet_interval,
@@ -28,8 +28,8 @@ const RunTimerStart = () => {
   const [isStopwatchRunning, setIsStopwatchRunning] = useState(false);
   const [startTime, setStartTime] = useState(null);
   const [finishTime, setFinishTime] = useState(null);
-  const stopwatchIntervalRef = useRef(null); // Ref to store the stopwatch interval
-  const timerIntervalRef = useRef(null); // Ref to store the timer interval
+  const stopwatchIntervalRef = useRef(null);
+  const timerIntervalRef = useRef(null);
 
   useEffect(() => {
     if (isRandomEnabled) {
@@ -121,18 +121,16 @@ const RunTimerStart = () => {
 
   const endRun = async () => {
     setIsStopwatchRunning(false);
-    clearInterval(stopwatchIntervalRef.current); // Clear the interval immediately
-    clearInterval(timerIntervalRef.current); // Clear the interval for timer as well
+    clearInterval(stopwatchIntervalRef.current);
+    clearInterval(timerIntervalRef.current);
 
     const finishTime = new Date(); // Record finish time
     setFinishTime(finishTime);
 
-    // Calculate time elapsed
     const timeElapsed = stopwatch / 100; // in seconds
 
-    // Save run data to AsyncStorage
     const runData = {
-      date: startTime.toISOString().split('T')[0],
+      date: new Date().toISOString(), // Save the exact time in ISO format
       startTime: startTime.toLocaleTimeString(),
       finishTime: finishTime.toLocaleTimeString(),
       timeElapsed: formatTime(stopwatch)
@@ -209,5 +207,3 @@ const styles = StyleSheet.create({
 });
 
 export default RunTimerStart;
-
-

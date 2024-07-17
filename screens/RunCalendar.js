@@ -6,12 +6,11 @@ import { format } from 'date-fns';
 import { useIsFocused } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-
 const RunCalendar = () => {
   const [runHistory, setRunHistory] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
   const [runsForSelectedDate, setRunsForSelectedDate] = useState([]);
-  const isFocused = useIsFocused(); // Hook to detect if screen is focused
+  const isFocused = useIsFocused();
 
   useEffect(() => {
     if (isFocused) {
@@ -45,8 +44,8 @@ const RunCalendar = () => {
     return markedDates;
   };
 
-  const formatDateToCentralTime = (dateString) => {
-    const date = new Date(dateString);
+  const formatDateToCentralTime = (isoString) => {
+    const date = new Date(isoString);
     const offset = date.getTimezoneOffset() * 60000;
     const centralTimeOffset = -5 * 3600000; // UTC-5 for Central Time during standard time
     const centralTimeDate = new Date(date.getTime() + offset + centralTimeOffset);
@@ -76,10 +75,10 @@ const RunCalendar = () => {
           selectedDayTextColor: '#ffffff',
           todayTextColor: '#00adf5',
           arrowColor: 'orange',
-          monthTextColor: '#000', // Changed from blue to black and removed bold
+          monthTextColor: '#000',
           indicatorColor: 'blue',
           textDayFontWeight: '300',
-          textMonthFontWeight: '300', // Removed bold style from month
+          textMonthFontWeight: '300',
           textDayHeaderFontWeight: '300',
           textDayFontSize: 16,
           textMonthFontSize: 16,
