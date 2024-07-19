@@ -15,13 +15,13 @@ Example: C:\Users\<yourusername>\RNprojects
 Open the extracted folder in VSCode
 
 
-Go to terminal, copy and paste all of these packages to install them
+select all of these commands, copy them and paste them into the terminal:
 
 npm install @react-navigation/native 
 
 npm install @react-navigation/material-top-tabs
 
-npm install react-native-screens
+npm install @react-navigation/stack
 
 npm install @react-navigation/bottom-tabs
 
@@ -37,7 +37,23 @@ npm install react-native-paper
 
 npm install @react-native-community/slider
 
-npm install react-native-sound
+npm install expo-av
+
+npm install firebase
+
+npm install @react-navigation/native-stack
+
+npm install @react-navigation-calendars
+
+npm install react-native-maps 
+
+npm install expo-location
+
+npm install date-fns
+
+npm install expo-sensors
+
+npm install expo-localization
 
 
 
