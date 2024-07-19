@@ -17,6 +17,8 @@ Open the extracted folder in VSCode
 
 select all of these commands, copy them and paste them into the terminal:
 
+npm install expo
+
 npm install @react-navigation/native 
 
 npm install @react-navigation/material-top-tabs
@@ -55,7 +57,7 @@ npm install expo-sensors
 
 npm install expo-localization
 
-
+npm install react-native-progress
 
 Next type in 'npm start' to run the app.
 
