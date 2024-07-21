@@ -3,33 +3,40 @@ import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, Button } fr
 import Icon from 'react-native-vector-icons/Ionicons';
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const ProfilePage = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [profilePic, setProfilePic] = useState(null);
-  const [name, setName] = useState('Name');
-  const [username, setUsername] = useState('Username');
-  const [location, setLocation] = useState('Location');
+  const [name, setName] = useState('Benjamin');
+  const [numberOfRuns, setNumberOfRuns] = useState(0);
 
   useEffect(() => {
     const loadProfileData = async () => {
       try {
         const storedName = await AsyncStorage.getItem('name');
-        const storedUsername = await AsyncStorage.getItem('username');
-        const storedLocation = await AsyncStorage.getItem('location');
         const storedProfilePic = await AsyncStorage.getItem('profilePic');
-
         if (storedName) setName(storedName);
-        if (storedUsername) setUsername(storedUsername);
-        if (storedLocation) setLocation(storedLocation);
         if (storedProfilePic) setProfilePic(storedProfilePic);
+
+        const runData = await fetchRunData();
+        setNumberOfRuns(runData.length);
       } catch (error) {
         console.error('Failed to load profile data', error);
       }
     };
-
     loadProfileData();
   }, []);
+
+  const fetchRunData = async () => {
+    try {
+      const storedRuns = await AsyncStorage.getItem('runHistory');
+      return storedRuns ? JSON.parse(storedRuns) : [];
+    } catch (error) {
+      console.error('Failed to fetch run data', error);
+      return [];
+    }
+  };
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -38,7 +45,6 @@ const ProfilePage = () => {
       aspect: [4, 4],
       quality: 1,
     });
-
     if (!result.canceled) {
       const uri = result.assets[0].uri;
       setProfilePic(uri);
@@ -48,101 +54,110 @@ const ProfilePage = () => {
 
   const saveProfile = async () => {
     await AsyncStorage.setItem('name', name);
-    await AsyncStorage.setItem('username', username);
-    await AsyncStorage.setItem('location', location);
     setIsEditMode(false);
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.profileSection}>
-        <TouchableOpacity onPress={pickImage}>
-          <View style={styles.profilePicContainer}>
-            <Image
-              source={profilePic ? { uri: profilePic } : require('../assets/profile-placeholder.png')}
-              style={styles.profilePic}
-            />
-            <Icon name="pencil-outline" size={20} color="#000" style={styles.editIcon} />
-          </View>
-        </TouchableOpacity>
-        {isEditMode ? (
-          <>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.profileContainer}>
+        <View style={styles.nameContainer}>
+          <Text style={styles.greeting}>Hello,</Text>
+          {isEditMode ? (
             <TextInput
               style={styles.input}
               value={name}
               onChangeText={setName}
               placeholder="Name"
             />
-            <TextInput
-              style={styles.input}
-              value={username}
-              onChangeText={setUsername}
-              placeholder="Username"
-            />
-            <TextInput
-              style={styles.input}
-              value={location}
-              onChangeText={setLocation}
-              placeholder="Location"
-            />
-            <Button title="Save" onPress={saveProfile} />
-          </>
-        ) : (
-          <>
-            <Text style={styles.username}>{name}</Text>
-            <Text style={styles.userDetail}>{username}</Text>
-            <Text style={styles.userDetail}>{location}</Text>
-            <Button title="Edit Profile" onPress={() => setIsEditMode(true)} />
-          </>
-        )}
+          ) : (
+            <Text style={styles.userName}>{name}</Text>
+          )}
+        </View>
+        <TouchableOpacity onPress={pickImage} style={styles.imageContainer}>
+          <Image source={{ uri: profilePic }} style={styles.profileImage} />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => setIsEditMode(!isEditMode)} style={styles.editButton}>
+          <Icon name={isEditMode ? "checkmark" : "pencil"} size={20} color="#FFF" />
+        </TouchableOpacity>
       </View>
-    </View>
+      {isEditMode && <Button title="Save" onPress={saveProfile} />}
+      <Text style={styles.sectionTitle}>Stats</Text>
+      <View style={styles.statsContainer}>
+        <View style={styles.statBox}>
+          <Text style={styles.statValue}>{numberOfRuns}</Text>
+          <Text style={styles.statLabel}>Number of Runs</Text>
+        </View>
+      </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#E8F1F2',
+    backgroundColor: '#0D1B2A', // Dark blue background
     paddingHorizontal: 20,
-    paddingTop: 50,
+    paddingTop: 60, // Increase the top padding for better spacing
   },
-  profileSection: {
+  profileContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
+    marginTop: 10, // Move the profile container up
   },
-  profilePicContainer: {
+  nameContainer: {
+    flex: 1,
+  },
+  greeting: {
+    fontSize: 24,
+    color: '#FFD700', // Yellow color for greeting
+  },
+  userName: {
+    fontSize: 32, // Increase font size for a better look
+    fontWeight: 'bold',
+    color: '#FFFFFF', // White color for user name
+  },
+  imageContainer: {
     position: 'relative',
   },
-  profilePic: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+  profileImage: {
+    width: 80, // Increase image size for a better look
+    height: 80,
+    borderRadius: 40,
   },
-  editIcon: {
-    position: 'absolute',
-    right: 0,
-    bottom: 0,
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 2,
-  },
-  username: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginTop: 10,
-  },
-  userDetail: {
-    fontSize: 16,
-    color: '#888',
+  editButton: {
+    marginLeft: 15, // Increase left margin for better spacing
   },
   input: {
-    fontSize: 16,
+    fontSize: 24,
+    color: '#FFFFFF', // White color for input text
     borderBottomWidth: 1,
-    borderColor: '#888',
-    marginBottom: 10,
-    width: '80%',
-    textAlign: 'center',
+    borderColor: '#FFD700', // Yellow color for input border
+  },
+  sectionTitle: {
+    fontSize: 20,
+    color: '#FFD700', // Yellow color for section title
+    marginTop: 40, // Increase top margin for better spacing
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center', // Center the stats box for a better look
+    marginTop: 20,
+  },
+  statBox: {
+    width: '50%', // Adjust width for a better look
+    backgroundColor: '#1B263B', // Darker blue for stats box background
+    padding: 20, // Increase padding for a better look
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  statValue: {
+    fontSize: 28, // Increase font size for a better look
+    fontWeight: 'bold',
+    color: '#FFFFFF', // White color for stat value
+  },
+  statLabel: {
+    fontSize: 16,
+    color: '#FFD700', // Yellow color for stat label
   },
 });
 

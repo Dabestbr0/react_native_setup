@@ -1,30 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, Image } from 'react-native';
+import React, { useState } from 'react';
+import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, Image, ImageBackground } from 'react-native';
 import { auth } from '../services/firebase';
-import { signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { useNavigation } from '@react-navigation/native';
 
-const LoginScreen = () => {
+const SignUpScreen = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [fullName, setFullName] = useState('');
 
     const navigation = useNavigation();
 
-    useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, user => {
-            if (user) {
-                navigation.replace("Main");
-            }
-        });
-
-        return unsubscribe;
-    }, []);
-
-    const handleLogin = () => {
-        signInWithEmailAndPassword(auth, email, password)
+    const handleSignUp = () => {
+        createUserWithEmailAndPassword(auth, email, password)
             .then(userCredentials => {
                 const user = userCredentials.user;
-                console.log('Logged in with', user.email);
+                console.log('Registered with', user.email);
             })
             .catch(error => alert(error.message));
     };
@@ -34,9 +25,16 @@ const LoginScreen = () => {
             <KeyboardAvoidingView style={styles.container} behavior="padding">
                 <Text style={styles.appName}>SPRINT O' CLOCK</Text>
                 <Image source={require('../assets/logo.png')} style={styles.runnerImage} />
-                <Text style={styles.headerText}>Log In</Text>
-                <Text style={styles.logoPhrase}>Welcome Back, Runner!</Text>
+                <Text style={styles.headerText}>Sign Up</Text>
+                <Text style={styles.logoPhrase}>Join Us and Start Running!</Text>
                 <View style={styles.inputContainer}>
+                    <TextInput
+                        placeholder="Full Name"
+                        value={fullName}
+                        onChangeText={text => setFullName(text)}
+                        style={styles.input}
+                        placeholderTextColor="#aaa"
+                    />
                     <TextInput
                         placeholder="Email"
                         value={email}
@@ -53,11 +51,11 @@ const LoginScreen = () => {
                         placeholderTextColor="#aaa"
                     />
                 </View>
-                <TouchableOpacity onPress={handleLogin} style={styles.button}>
-                    <Text style={styles.buttonText}>Sign In</Text>
+                <TouchableOpacity onPress={handleSignUp} style={styles.button}>
+                    <Text style={styles.buttonText}>Sign Up</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate('SignUp')} style={styles.signUpContainer}>
-                    <Text style={styles.signUpText}>Don't have an account? <Text style={styles.signUpLink}>Sign Up</Text></Text>
+                <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.signInContainer}>
+                    <Text style={styles.signInText}>Already have an account? <Text style={styles.signInLink}>Sign In</Text></Text>
                 </TouchableOpacity>
             </KeyboardAvoidingView>
         </View>
@@ -127,19 +125,19 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         fontSize: 16,
     },
-    signUpContainer: {
+    signInContainer: {
         marginTop: 20,
     },
-    signUpText: {
+    signInText: {
         color: 'white',
         fontSize: 14,
         textAlign: 'center',
     },
-    signUpLink: {
+    signInLink: {
         color: '#1E90FF',
         fontWeight: '700',
         fontSize: 16,
     },
 });
 
-export default LoginScreen;
+export default SignUpScreen;

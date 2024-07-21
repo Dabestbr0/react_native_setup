@@ -34,4 +34,3 @@ const styles = StyleSheet.create({
     backgroundColor: '#ADD8E6', // Light blue background color
   },
 });
-
