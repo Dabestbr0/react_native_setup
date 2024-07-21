@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, Platform } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Platform, Button, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Calendar } from 'react-native-calendars';
-import { format } from 'date-fns';
 import { useIsFocused } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -30,7 +29,7 @@ const RunCalendar = () => {
 
   useEffect(() => {
     if (selectedDate) {
-      const runs = runHistory.filter(run => formatDateToCentralTime(run.date) === selectedDate);
+      const runs = runHistory.filter(run => run.date === selectedDate);
       setRunsForSelectedDate(runs);
     }
   }, [selectedDate, runHistory]);
@@ -38,18 +37,10 @@ const RunCalendar = () => {
   const getMarkedDates = () => {
     const markedDates = {};
     runHistory.forEach(run => {
-      const formattedDate = formatDateToCentralTime(run.date);
+      const formattedDate = run.date;
       markedDates[formattedDate] = { marked: true, selected: formattedDate === selectedDate };
     });
     return markedDates;
-  };
-
-  const formatDateToCentralTime = (isoString) => {
-    const date = new Date(isoString);
-    const offset = date.getTimezoneOffset() * 60000;
-    const centralTimeOffset = -5 * 3600000; // UTC-5 for Central Time during standard time
-    const centralTimeDate = new Date(date.getTime() + offset + centralTimeOffset);
-    return format(centralTimeDate, 'yyyy-MM-dd');
   };
 
   const formatElapsedTime = (elapsedTime) => {
@@ -63,6 +54,29 @@ const RunCalendar = () => {
     }
     formattedTime += `${milliseconds}ms`;
     return formattedTime.trim();
+  };
+
+  const deleteRun = async (runToDelete) => {
+    Alert.alert(
+      'Delete Run',
+      'Are you sure you want to delete this run?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          onPress: async () => {
+            const updatedHistory = runHistory.filter(run => run !== runToDelete);
+            setRunHistory(updatedHistory);
+            setRunsForSelectedDate(updatedHistory.filter(run => run.date === selectedDate));
+            await AsyncStorage.setItem('runHistory', JSON.stringify(updatedHistory));
+          },
+          style: 'destructive',
+        },
+      ]
+    );
   };
 
   return (
@@ -82,7 +96,7 @@ const RunCalendar = () => {
           textDayHeaderFontWeight: '300',
           textDayFontSize: 16,
           textMonthFontSize: 16,
-          textDayHeaderFontSize: 16
+          textDayHeaderFontSize: 16,
         }}
       />
       <FlatList
@@ -93,7 +107,7 @@ const RunCalendar = () => {
             <Text style={styles.runTextTitle}>Run Details</Text>
             <View style={styles.runDetail}>
               <Text style={styles.runLabel}>Date:</Text>
-              <Text style={styles.runValue}>{formatDateToCentralTime(item.date)}</Text>
+              <Text style={styles.runValue}>{item.date}</Text>
             </View>
             <View style={styles.runDetail}>
               <Text style={styles.runLabel}>Start Time:</Text>
@@ -107,6 +121,19 @@ const RunCalendar = () => {
               <Text style={styles.runLabel}>Elapsed Time:</Text>
               <Text style={styles.runValue}>{formatElapsedTime(item.timeElapsed)}</Text>
             </View>
+            <View style={styles.runDetail}>
+              <Text style={styles.runLabel}>Distance:</Text>
+              <Text style={styles.runValue}>{item.distance}m</Text>
+            </View>
+            <View style={styles.runDetail}>
+              <Text style={styles.runLabel}>Steps:</Text>
+              <Text style={styles.runValue}>{item.steps}</Text>
+            </View>
+            <View style={styles.runDetail}>
+              <Text style={styles.runLabel}>Calories:</Text>
+              <Text style={styles.runValue}>{item.calories}</Text>
+            </View>
+            <Button title="Delete Run" onPress={() => deleteRun(item)} color="red" />
           </View>
         )}
         ListEmptyComponent={<Text style={styles.noDataText}>No run history available for this date.</Text>}

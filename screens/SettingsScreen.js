@@ -24,7 +24,7 @@ const SettingsScreen = () => {
 
   return (
     <ImageBackground
-      source={require('../assets/settingsbgm.png')} 
+      source={require('../assets/settingsbgm.jpg')} 
       style={styles.background}
     >
       <SafeAreaView style={styles.container}>

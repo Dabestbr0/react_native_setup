@@ -14,9 +14,10 @@ export const SettingsContext = createContext();
 export const SettingsProvider = ({ children }) => {
   const [OnYourMark_interval, setOnYourMark_Interval] = useState(3);
   const [GetSet_interval, setGetSet_Interval ] = useState(1);
-  const [isVibrationEnabled, setIsVibrationEnabled] = useState(false);
+  const [isVibrationEnabled, setIsVibrationEnabled] = useState(true);
   const [isAudioEnabled, setIsAudioEnabled] = useState(false);
   const [isRandomEnabled, setIsRandomEnabled] = useState(true);
+  const [distanceGoal, setDistanceGoal] = useState(null);
 
 
   return (
@@ -26,6 +27,7 @@ export const SettingsProvider = ({ children }) => {
         isVibrationEnabled, setIsVibrationEnabled,
         isAudioEnabled, setIsAudioEnabled,
         isRandomEnabled, setIsRandomEnabled,
+        distanceGoal, setDistanceGoal,
         }}>
         {children}
     </SettingsContext.Provider>

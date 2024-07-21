@@ -1,10 +1,13 @@
 import React, { useContext, useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Image, Vibration, Button } from 'react-native';
+import { View, Text, StyleSheet, Image, Vibration, Button, Dimensions } from 'react-native';
 import { Audio } from 'expo-av';
 import { useNavigation } from '@react-navigation/native';
 import { SettingsContext } from '../contexts/SettingsData';
 import * as Progress from 'react-native-progress';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { format } from 'date-fns';
+import * as Location from 'expo-location';
+import { Pedometer } from 'expo-sensors';
 
 const RunTimerStart = () => {
   const navigation = useNavigation();
@@ -31,18 +34,35 @@ const RunTimerStart = () => {
   const stopwatchIntervalRef = useRef(null);
   const timerIntervalRef = useRef(null);
 
+  // State variables for step tracking
+  const [location, setLocation] = useState(null);
+  const [errorMsg, setErrorMsg] = useState(null);
+  const [stepCount, setStepCount] = useState(0);
+  const [pedometerAvailability, setPedometerAvailability] = useState("");
+  const [locationSubscription, setLocationSubscription] = useState(null);
+  const [pedometerSubscription, setPedometerSubscription] = useState(null);
+
+  const windowHeight = Dimensions.get("window").height;
+  const stepsToMeters = 0.762;
+  const distanceFromSteps = stepCount * stepsToMeters;
+  const distanceCovered = distanceFromSteps.toFixed(2);
+  const caloriesBurnt = ((distanceCovered * 0.5) / 1000).toFixed(2);
+
+  // Effect to randomize Get Set interval
   useEffect(() => {
     if (isRandomEnabled) {
       setGetSet_Interval(Math.floor(Math.random() * 10) + 1);
     }
   }, [isRandomEnabled, setGetSet_Interval]);
 
+  // Effect to trigger vibration
   useEffect(() => {
     if (isVibrationEnabled) {
       Vibration.vibrate();
     }
   }, [isVibrationEnabled]);
 
+  // Effect to load audio files
   useEffect(() => {
     const loadSounds = async () => {
       const onYourMark = new Audio.Sound();
@@ -58,7 +78,6 @@ const RunTimerStart = () => {
         setGetSetSound(getSet);
         setGoSound(go);
 
-        console.log('Playing On Your Mark sound');
         await onYourMark.playAsync();
       } catch (error) {
         console.log('Failed to load sounds', error);
@@ -74,25 +93,26 @@ const RunTimerStart = () => {
     };
   }, []);
 
+  // Effect to handle timer logic and running status
   useEffect(() => {
     if (timer === 0) {
       if (word === 'On Your Marks...') {
+        Vibration.vibrate();
         setWord('Get Set...');
         setTimer(GetSet_interval);
         setProgress(1);
         setRunningPosition(require('../assets/images/getsetposition.png'));
-        console.log('Playing Get Set sound');
         getSetSound && getSetSound.playAsync();
       } else if (word === 'Get Set...') {
         setWord('GO!');
         setTimer(0);
         setProgress(1);
         setRunningPosition(require('../assets/images/goposition.png'));
-        console.log('Playing GO sound');
         goSound && goSound.playAsync();
         setRunning(true);
         setIsStopwatchRunning(true);
-        setStartTime(new Date()); // Record start time
+        setStartTime(new Date());
+        startTracking(); // Start tracking steps and location
       }
     }
 
@@ -107,47 +127,97 @@ const RunTimerStart = () => {
     return () => clearInterval(timerIntervalRef.current);
   }, [timer, word, GetSet_interval, getSetSound, goSound, OnYourMark_interval]);
 
+  // Effect to handle stopwatch logic
   useEffect(() => {
-    if (isStopwatchRunning) {
-      stopwatchIntervalRef.current = setInterval(() => {
+    stopwatchIntervalRef.current = setInterval(() => {
+      if (isStopwatchRunning) {
         setStopwatch(prevTime => prevTime + 1);
-      }, 10);
-    } else {
-      clearInterval(stopwatchIntervalRef.current);
-    }
+      }
+    }, 10);
 
     return () => clearInterval(stopwatchIntervalRef.current);
   }, [isStopwatchRunning]);
 
+  // Function to start tracking location and steps
+  const startTracking = async () => {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+      setErrorMsg('Permission to access location was denied');
+      return;
+    }
+
+    const locSubscription = await Location.watchPositionAsync(
+      {
+        accuracy: Location.Accuracy.High,
+        timeInterval: 1000,
+        distanceInterval: 1,
+      },
+      (newLocation) => {
+        setLocation(newLocation);
+      }
+    );
+    setLocationSubscription(locSubscription);
+
+    const pedSubscription = Pedometer.watchStepCount((result) => {
+      setStepCount(result.steps);
+    });
+    setPedometerSubscription(pedSubscription);
+
+    Pedometer.isAvailableAsync().then(
+      (result) => {
+        setPedometerAvailability(String(result));
+      },
+      (error) => {
+        setPedometerAvailability(error);
+      }
+    );
+  };
+
+  // Function to stop tracking location and steps
+  const stopTracking = () => {
+    if (locationSubscription) {
+      locationSubscription.remove();
+      setLocationSubscription(null);
+    }
+    if (pedometerSubscription) {
+      pedometerSubscription.remove();
+      setPedometerSubscription(null);
+    }
+  };
+
+  // Function to handle end of run
   const endRun = async () => {
+    setIsStopwatchRunning(false);
     clearInterval(stopwatchIntervalRef.current);
     clearInterval(timerIntervalRef.current);
+    stopTracking(); // Stop tracking steps and location
 
-    setIsStopwatchRunning(false);
-    setRunning(false);
-
-    const finishTime = new Date(); // Record finish time
+    const finishTime = new Date();
     setFinishTime(finishTime);
 
-    const timeElapsed = stopwatch / 100; // in seconds
-
+    const todayDate = format(new Date(), 'yyyy-MM-dd');
     const runData = {
-      date: new Date().toISOString(), // Save the exact time in ISO format
+      date: todayDate,
       startTime: startTime.toLocaleTimeString(),
       finishTime: finishTime.toLocaleTimeString(),
-      timeElapsed: formatTime(stopwatch)
+      timeElapsed: formatTime(stopwatch),
+      steps: stepCount,
+      distance: distanceCovered,
+      calories: caloriesBurnt,
     };
 
     try {
       const storedRuns = await AsyncStorage.getItem('runHistory');
       const runHistory = storedRuns ? JSON.parse(storedRuns) : [];
       runHistory.push(runData);
+
       await AsyncStorage.setItem('runHistory', JSON.stringify(runHistory));
     } catch (error) {
       console.error('Failed to save run data', error);
     }
 
-    navigation.navigate('Home'); // Navigate back to the Home screen
+    setRunning(false);
+    navigation.navigate('Home');
   };
 
   const formatTime = (time) => {
@@ -159,14 +229,12 @@ const RunTimerStart = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.bold}>
-        {word}
-      </Text>
+      <Text style={styles.bold}>{word}</Text>
       <Progress.Circle
         size={200}
         progress={progress}
         showsText={true}
-        formatText={() => isStopwatchRunning ? formatTime(stopwatch) : timer.toString()}
+        formatText={() => (isStopwatchRunning ? formatTime(stopwatch) : timer.toString())}
         textStyle={styles.progressText}
         thickness={10}
         color="#FFD700"
@@ -175,14 +243,23 @@ const RunTimerStart = () => {
       <Image
         source={runningPosition}
         style={styles.image}
+        resizeMode="contain"
       />
       {running && (
         <Button title="Stop Run" onPress={endRun} />
+      )}
+      {running && (
+        <View style={styles.infoContainer}>
+          <Text style={styles.infoText}>Steps: {stepCount}</Text>
+          <Text style={styles.infoText}>Distance: {distanceCovered} meters</Text>
+          <Text style={styles.infoText}>Calories: {caloriesBurnt} kcal</Text>
+        </View>
       )}
     </View>
   );
 };
 
+// Styles for the component
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -203,8 +280,15 @@ const styles = StyleSheet.create({
   image: {
     width: 200,
     height: 200,
+    marginBottom: 20,
+  },
+  infoContainer: {
     marginTop: 20,
+  },
+  infoText: {
+    fontSize: 18,
+    color: '#FFD700',
   },
 });
 
-export default RunTimerStart;
+export default RunTimerStart; // Export the RunTimerStart component
