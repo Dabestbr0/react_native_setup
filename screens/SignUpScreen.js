@@ -7,11 +7,13 @@ import { useNavigation } from '@react-navigation/native';
 const SignUpScreen = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [fullName, setFullName] = useState('');
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
 
     const navigation = useNavigation();
 
     const handleSignUp = () => {
+        const fullName = `${firstName} ${lastName}`;
         createUserWithEmailAndPassword(auth, email, password)
             .then(async userCredentials => {
                 const user = userCredentials.user;
@@ -33,9 +35,16 @@ const SignUpScreen = () => {
                 <Text style={styles.logoPhrase}>Join Us and Start Running!</Text>
                 <View style={styles.inputContainer}>
                     <TextInput
-                        placeholder="Full Name"
-                        value={fullName}
-                        onChangeText={text => setFullName(text)}
+                        placeholder="First Name"
+                        value={firstName}
+                        onChangeText={text => setFirstName(text)}
+                        style={styles.input}
+                        placeholderTextColor="#aaa"
+                    />
+                    <TextInput
+                        placeholder="Last Name"
+                        value={lastName}
+                        onChangeText={text => setLastName(text)}
                         style={styles.input}
                         placeholderTextColor="#aaa"
                     />
