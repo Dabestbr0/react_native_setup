@@ -23,7 +23,6 @@ export default function App() {
           <Stack.Screen name="SignUp" component={SignUpScreen} options={{ headerShown: false }} />
           <Stack.Screen name="RunTimerStart" component={RunTimerStartScreen} />
           <Stack.Screen name="RunHistory" component={RunCalendar} />
-          <Stack.Screen name="HomeContent" component={HomeContent} options={{ headerShown: false }} />
         </Stack.Navigator>
       </NavigationContainer>
     </SettingsProvider>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, Image, ImageBackground } from 'react-native';
+import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, Image } from 'react-native';
 import { auth } from '../services/firebase';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { useNavigation } from '@react-navigation/native';
 
 const SignUpScreen = () => {
@@ -13,9 +13,13 @@ const SignUpScreen = () => {
 
     const handleSignUp = () => {
         createUserWithEmailAndPassword(auth, email, password)
-            .then(userCredentials => {
+            .then(async userCredentials => {
                 const user = userCredentials.user;
+                await updateProfile(user, {
+                    displayName: fullName
+                });
                 console.log('Registered with', user.email);
+                navigation.navigate('Main'); // Navigate to the Main screen after signup
             })
             .catch(error => alert(error.message));
     };
@@ -24,7 +28,7 @@ const SignUpScreen = () => {
         <View style={styles.background}>
             <KeyboardAvoidingView style={styles.container} behavior="padding">
                 <Text style={styles.appName}>SPRINT O' CLOCK</Text>
-                <Image source={require('../assets/logo.png')} style={styles.runnerImage} />
+                <Image source={require('../assets/logo2.png')} style={styles.runnerImage} />
                 <Text style={styles.headerText}>Sign Up</Text>
                 <Text style={styles.logoPhrase}>Join Us and Start Running!</Text>
                 <View style={styles.inputContainer}>
@@ -67,7 +71,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'black', // Set background color to black
+        backgroundColor: '#FFFFFF', // Set background color to white
     },
     container: {
         flex: 1,
@@ -79,7 +83,7 @@ const styles = StyleSheet.create({
     appName: {
         fontSize: 32,
         fontWeight: 'bold',
-        color: 'white',
+        color: 'orange', // Change color to orange
         marginBottom: 20,
         textAlign: 'center',
     },
@@ -91,12 +95,12 @@ const styles = StyleSheet.create({
     headerText: {
         fontSize: 28,
         fontWeight: 'bold',
-        color: 'white',
+        color: '#0D1B2A', // Change color to dark blue
         marginBottom: 10,
     },
     logoPhrase: {
         fontSize: 16,
-        color: 'white',
+        color: '#0D1B2A', // Change color to dark blue
         marginBottom: 20,
     },
     inputContainer: {
@@ -129,7 +133,7 @@ const styles = StyleSheet.create({
         marginTop: 20,
     },
     signInText: {
-        color: 'white',
+        color: '#0D1B2A', // Change color to dark blue
         fontSize: 14,
         textAlign: 'center',
     },

@@ -33,7 +33,7 @@ const LoginScreen = () => {
         <View style={styles.background}>
             <KeyboardAvoidingView style={styles.container} behavior="padding">
                 <Text style={styles.appName}>SPRINT O' CLOCK</Text>
-                <Image source={require('../assets/logo.png')} style={styles.runnerImage} />
+                <Image source={require('../assets/logo2.png')} style={styles.runnerImage} />
                 <Text style={styles.headerText}>Log In</Text>
                 <Text style={styles.logoPhrase}>Welcome Back, Runner!</Text>
                 <View style={styles.inputContainer}>
@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'black', // Set background color to black
+        backgroundColor: '#FFFFFF', // Set background color to white
     },
     container: {
         flex: 1,
@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
     appName: {
         fontSize: 32,
         fontWeight: 'bold',
-        color: 'white',
+        color: 'orange', // Change color to orange
         marginBottom: 20,
         textAlign: 'center',
     },
@@ -93,12 +93,12 @@ const styles = StyleSheet.create({
     headerText: {
         fontSize: 28,
         fontWeight: 'bold',
-        color: 'white',
+        color: '#0D1B2A', // Change color to dark blue
         marginBottom: 10,
     },
     logoPhrase: {
         fontSize: 16,
-        color: 'white',
+        color: '#0D1B2A', // Change color to dark blue
         marginBottom: 20,
     },
     inputContainer: {
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
         marginTop: 20,
     },
     signUpText: {
-        color: 'white',
+        color: '#0D1B2A', // Change color to dark blue
         fontSize: 14,
         textAlign: 'center',
     },

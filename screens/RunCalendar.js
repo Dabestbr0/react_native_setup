@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, Platform, Button, Alert } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Platform, Button, Alert, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Calendar } from 'react-native-calendars';
 import { useIsFocused } from '@react-navigation/native';
@@ -133,7 +133,9 @@ const RunCalendar = () => {
               <Text style={styles.runLabel}>Calories:</Text>
               <Text style={styles.runValue}>{item.calories}</Text>
             </View>
-            <Button title="Delete Run" onPress={() => deleteRun(item)} color="red" />
+            <TouchableOpacity onPress={() => deleteRun(item)} style={styles.deleteButton}>
+              <Text style={styles.deleteButtonText}>DELETE RUN</Text>
+            </TouchableOpacity>
           </View>
         )}
         ListEmptyComponent={<Text style={styles.noDataText}>No run history available for this date.</Text>}
@@ -146,7 +148,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f2f2f2',
-    paddingTop: 'true',
+    paddingTop: Platform.OS === 'android' ? 25 : 0,
   },
   runItem: {
     backgroundColor: '#ffffff',
@@ -154,7 +156,7 @@ const styles = StyleSheet.create({
     padding: 16,
     marginVertical: 8,
     marginHorizontal: 16,
-    shadowColor: Platform.OS === 'ios' ? '#000' : '#6200ee',
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.3,
     shadowRadius: 3,
@@ -178,6 +180,18 @@ const styles = StyleSheet.create({
   runValue: {
     fontSize: 16,
     color: '#000',
+  },
+  deleteButton: {
+    backgroundColor: '#FF0000',
+    padding: 10,
+    borderRadius: 8,
+    marginTop: 10,
+    alignItems: 'center',
+  },
+  deleteButtonText: {
+    color: '#FFF',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
   noDataText: {
     textAlign: 'center',

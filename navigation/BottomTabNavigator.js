@@ -12,8 +12,9 @@ const BottomTab = createBottomTabNavigator();
 const BottomTabNavigator = () => (
   <BottomTab.Navigator
     screenOptions={({ route }) => ({
-      tabBarIcon: ({ focused, color, size }) => {
+      tabBarIcon: ({ focused, size }) => {
         let iconName;
+        let iconColor = focused ? 'darkorange' : 'darkorange';
 
         switch (route.name) {
           case 'Home':
@@ -36,11 +37,12 @@ const BottomTabNavigator = () => (
             break;
         }
 
-        return <Icon name={iconName} size={size} color={color} />;
+        return <Icon name={iconName} size={size} color={iconColor} />;
       },
-      tabBarActiveTintColor: 'tomato',
+      tabBarActiveTintColor: 'darkorange',
       tabBarInactiveTintColor: 'gray',
       tabBarStyle: {
+        backgroundColor: 'white', // Set background color to white
         display: 'flex',
       },
       headerShown: false, // This will hide the header for all screens
@@ -55,3 +57,6 @@ const BottomTabNavigator = () => (
 );
 
 export default BottomTabNavigator;
+
+
+
