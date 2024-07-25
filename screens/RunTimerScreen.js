@@ -25,7 +25,7 @@ const RunTimerStart = () => {
   const [onYourMarkSound, setOnYourMarkSound] = useState(null);
   const [getSetSound, setGetSetSound] = useState(null);
   const [goSound, setGoSound] = useState(null);
-  const [runningPosition, setRunningPosition] = useState(require('../assets/images/onyourmarksposition.png'));
+  const [runningPosition, setRunningPosition] = useState(require('../assets/images/ready.png'));
   const [running, setRunning] = useState(false);
   const [stopwatch, setStopwatch] = useState(0);
   const [isStopwatchRunning, setIsStopwatchRunning] = useState(false);
@@ -101,13 +101,13 @@ const RunTimerStart = () => {
         setWord('Get Set...');
         setTimer(GetSet_interval);
         setProgress(1);
-        setRunningPosition(require('../assets/images/getsetposition.png'));
+        setRunningPosition(require('../assets/images/set.png'));
         getSetSound && getSetSound.playAsync();
       } else if (word === 'Get Set...') {
         setWord('GO!');
         setTimer(0);
         setProgress(1);
-        setRunningPosition(require('../assets/images/goposition.png'));
+        setRunningPosition(require('../assets/images/go.png'));
         goSound && goSound.playAsync();
         setRunning(true);
         setIsStopwatchRunning(true);
@@ -237,7 +237,7 @@ const RunTimerStart = () => {
         formatText={() => (isStopwatchRunning ? formatTime(stopwatch) : timer.toString())}
         textStyle={styles.progressText}
         thickness={10}
-        color="#FFD700"
+        color="#FF8C00"
         borderWidth={0}
       />
       <Image
@@ -265,17 +265,17 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#242c45',
+    backgroundColor: '#FFF',
   },
   bold: {
     fontSize: 32,
-    color: '#FFD700',
+    color: '#FF8C00',
     marginBottom: 10,
     fontWeight: 'bold',
   },
   progressText: {
     fontSize: 40,
-    color: '#FFD700',
+    color: '#FF8C00',
   },
   image: {
     width: 200,
@@ -287,7 +287,7 @@ const styles = StyleSheet.create({
   },
   infoText: {
     fontSize: 18,
-    color: '#FFD700',
+    color: '#FF8C00',
   },
 });
 
