@@ -1,34 +1,40 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, Dimensions, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, Dimensions, ScrollView, Button } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LineChart } from 'react-native-chart-kit';
+import { useRoute } from '@react-navigation/native';
+import { auth } from '../services/firebase'; // Correct the path
 
 const ProfilePage = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [profilePic, setProfilePic] = useState(null);
-  const [name, setName] = useState('Benjamin');
   const [numberOfRuns, setNumberOfRuns] = useState(0);
   const [runData, setRunData] = useState([]);
+  
+  const route = useRoute();
+  const [firstName, setFirstName] = useState('');
 
   useEffect(() => {
-    const loadProfileData = async () => {
-      try {
-        const storedName = await AsyncStorage.getItem('name');
-        const storedProfilePic = await AsyncStorage.getItem('profilePic');
-        if (storedName) setName(storedName);
-        if (storedProfilePic) setProfilePic(storedProfilePic);
-
-        const runs = await fetchRunData();
-        setRunData(runs);
-        setNumberOfRuns(runs.length);
-      } catch (error) {
-        console.error('Failed to load profile data', error);
+    const fetchUserData = async () => {
+      if (auth.currentUser?.displayName) {
+        const nameParts = auth.currentUser.displayName.split(' ');
+        setFirstName(nameParts[0]);
       }
+
+      const storedName = await AsyncStorage.getItem('name');
+      const storedProfilePic = await AsyncStorage.getItem('profilePic');
+      if (storedName) setFirstName(storedName.split(' ')[0]);
+      if (storedProfilePic) setProfilePic(storedProfilePic);
+
+      const runs = await fetchRunData();
+      setRunData(runs);
+      setNumberOfRuns(runs.length);
     };
-    loadProfileData();
+
+    fetchUserData();
   }, []);
 
   const fetchRunData = async () => {
@@ -56,7 +62,7 @@ const ProfilePage = () => {
   };
 
   const saveProfile = async () => {
-    await AsyncStorage.setItem('name', name);
+    await AsyncStorage.setItem('name', firstName);
     setIsEditMode(false);
   };
 
@@ -105,17 +111,15 @@ const ProfilePage = () => {
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.profileContainer}>
           <View style={styles.nameContainer}>
-            <Text style={styles.greeting}>Hello,</Text>
+            <Text style={styles.greeting}>Hello, <Text style={styles.boldText}>{firstName}</Text>!</Text>
             {isEditMode ? (
               <TextInput
                 style={styles.input}
-                value={name}
-                onChangeText={setName}
+                value={firstName}
+                onChangeText={setFirstName}
                 placeholder="Name"
               />
-            ) : (
-              <Text style={styles.userName}>{name}</Text>
-            )}
+            ) : null}
           </View>
           <TouchableOpacity onPress={pickImage} style={styles.imageContainer}>
             {profilePic ? (
@@ -198,10 +202,9 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: '#FFA500',
   },
-  userName: {
-    fontSize: 32,
+  boldText: {
+    fontSize: 24,
     fontWeight: 'bold',
-    color: '#FFA500',
   },
   imageContainer: {
     position: 'relative',
@@ -269,4 +272,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ProfilePage
+export default ProfilePage;

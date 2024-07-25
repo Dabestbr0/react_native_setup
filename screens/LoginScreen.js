@@ -36,29 +36,31 @@ const LoginScreen = () => {
                 <Image source={require('../assets/logo2.png')} style={styles.runnerImage} />
                 <Text style={styles.headerText}>Log In</Text>
                 <Text style={styles.logoPhrase}>Welcome Back, Runner!</Text>
-                <View style={styles.inputContainer}>
-                    <TextInput
-                        placeholder="Email"
-                        value={email}
-                        onChangeText={text => setEmail(text)}
-                        style={styles.input}
-                        placeholderTextColor="#aaa"
-                    />
-                    <TextInput
-                        placeholder="Password"
-                        value={password}
-                        onChangeText={text => setPassword(text)}
-                        style={styles.input}
-                        secureTextEntry
-                        placeholderTextColor="#aaa"
-                    />
+                <View style={styles.boxContainer}>
+                    <View style={styles.inputContainer}>
+                        <TextInput
+                            placeholder="Email"
+                            value={email}
+                            onChangeText={text => setEmail(text)}
+                            style={styles.input}
+                            placeholderTextColor="#555"
+                        />
+                        <TextInput
+                            placeholder="Password"
+                            value={password}
+                            onChangeText={text => setPassword(text)}
+                            style={styles.input}
+                            secureTextEntry
+                            placeholderTextColor="#555"
+                        />
+                    </View>
+                    <TouchableOpacity onPress={handleLogin} style={styles.button}>
+                        <Text style={styles.buttonText}>Sign In</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => navigation.navigate('SignUp')} style={styles.signUpContainer}>
+                        <Text style={styles.signUpText}>Don't have an account? <Text style={styles.signUpLink}>Sign Up</Text></Text>
+                    </TouchableOpacity>
                 </View>
-                <TouchableOpacity onPress={handleLogin} style={styles.button}>
-                    <Text style={styles.buttonText}>Sign In</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate('SignUp')} style={styles.signUpContainer}>
-                    <Text style={styles.signUpText}>Don't have an account? <Text style={styles.signUpLink}>Sign Up</Text></Text>
-                </TouchableOpacity>
             </KeyboardAvoidingView>
         </View>
     );
@@ -69,7 +71,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#FFFFFF', // Set background color to white
+        backgroundColor: '#FFFFFF',
     },
     container: {
         flex: 1,
@@ -81,7 +83,7 @@ const styles = StyleSheet.create({
     appName: {
         fontSize: 32,
         fontWeight: 'bold',
-        color: 'orange', // Change color to orange
+        color: 'orange',
         marginBottom: 20,
         textAlign: 'center',
     },
@@ -93,34 +95,47 @@ const styles = StyleSheet.create({
     headerText: {
         fontSize: 28,
         fontWeight: 'bold',
-        color: '#0D1B2A', // Change color to dark blue
+        color: '#0D1B2A',
         marginBottom: 10,
     },
     logoPhrase: {
         fontSize: 16,
-        color: '#0D1B2A', // Change color to dark blue
+        color: '#0D1B2A',
         marginBottom: 20,
     },
+    boxContainer: {
+        width: '90%',
+        backgroundColor: '#F7F8FA',
+        padding: 20,
+        borderRadius: 10,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowOffset: { width: 0, height: 1 },
+        shadowRadius: 5,
+        elevation: 5,
+    },
     inputContainer: {
-        width: '80%',
-        marginBottom: 30,
+        width: '100%',
     },
     input: {
-        backgroundColor: 'rgba(255, 255, 255, 0.8)',
+        backgroundColor: 'white',
         paddingHorizontal: 15,
         paddingVertical: 10,
         borderRadius: 10,
         marginTop: 10,
         fontSize: 16,
         color: 'black',
+        borderColor: '#ddd',
+        borderWidth: 1,
     },
     button: {
-        backgroundColor: '#1E90FF', // Blue color
-        width: '80%',
+        backgroundColor: '#1E90FF',
+        width: '100%',
         padding: 15,
         borderRadius: 10,
         alignItems: 'center',
-        marginTop: 10,
+        marginTop: 20,
     },
     buttonText: {
         color: 'white',
@@ -131,14 +146,14 @@ const styles = StyleSheet.create({
         marginTop: 20,
     },
     signUpText: {
-        color: '#0D1B2A', // Change color to dark blue
+        color: '#0D1B2A',
         fontSize: 14,
         textAlign: 'center',
     },
     signUpLink: {
         color: '#1E90FF',
         fontWeight: '700',
-        fontSize: 16,
+        fontSize: 14,
     },
 });
 
