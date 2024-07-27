@@ -24,14 +24,12 @@ const SettingsScreen = () => {
   const toggleAudioSwitch = () => setIsAudioEnabled(previousState => !previousState);
   const toggleRandomSwitch = () => setIsRandomEnabled(previousState => !previousState);
 
-  const handleSignOut = async () => {
-    try {
-      await AsyncStorage.clear(); // Clear AsyncStorage
-      await auth.signOut();
-      navigation.replace("Login"); // Navigate to the Login screen
-    } catch (error) {
-      alert(error.message);
-    }
+  const handleSignOut = () => {
+    auth.signOut()
+      .then(() => {
+        navigation.replace("Login");
+      })
+      .catch(error => alert(error.message));
   };
 
   const screenWidth = Dimensions.get('window').width;
