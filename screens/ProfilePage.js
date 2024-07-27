@@ -6,7 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LineChart } from 'react-native-chart-kit';
 import { useRoute } from '@react-navigation/native';
-import { auth } from '../services/firebase'; // Correct the path
+import { auth } from '../services/firebase';
 
 const ProfilePage = () => {
   const [isEditMode, setIsEditMode] = useState(false);
@@ -142,37 +142,39 @@ const ProfilePage = () => {
         </View>
         <Text style={styles.sectionTitle}>Progress</Text>
         {runData.length > 0 ? (
-          <LineChart
-            data={formatRunDataForChart()}
-            width={Dimensions.get('window').width - 40}
-            height={300}
-            yAxisLabel=""
-            yAxisSuffix="m"
-            chartConfig={{
-              backgroundColor: '#ffffff',
-              backgroundGradientFrom: '#ffffff',
-              backgroundGradientTo: '#ffffff',
-              decimalPlaces: 2,
-              color: (opacity = 1) => `rgba(34, 202, 236, ${opacity})`,
-              labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-              style: {
-                borderRadius: 16,
-              },
-              propsForDots: (dot, index) => {
-                let color = '#ffa726';
-                if (index % 2 === 1) { // Time data is the second dataset
-                  color = 'green';
-                }
-                return {
-                  r: '6',
-                  strokeWidth: '2',
-                  stroke: color,
-                };
-              },
-            }}
-            bezier
-            style={styles.chart}
-          />
+          <ScrollView horizontal>
+            <LineChart
+              data={formatRunDataForChart()}
+              width={Dimensions.get('window').width * 2} // Double the width for horizontal scrolling
+              height={300}
+              yAxisLabel=""
+              yAxisSuffix="m"
+              chartConfig={{
+                backgroundColor: '#ffffff',
+                backgroundGradientFrom: '#ffffff',
+                backgroundGradientTo: '#ffffff',
+                decimalPlaces: 2,
+                color: (opacity = 1) => `rgba(34, 202, 236, ${opacity})`,
+                labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                style: {
+                  borderRadius: 16,
+                },
+                propsForDots: (dot, index) => {
+                  let color = '#ffa726';
+                  if (index % 2 === 1) { // Time data is the second dataset
+                    color = 'green';
+                  }
+                  return {
+                    r: '6',
+                    strokeWidth: '2',
+                    stroke: color,
+                  };
+                },
+              }}
+              bezier
+              style={styles.chart}
+            />
+          </ScrollView>
         ) : (
           <Text style={styles.noDataText}>No run data available</Text>
         )}

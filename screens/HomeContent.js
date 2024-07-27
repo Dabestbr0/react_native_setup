@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView, Platform, Image, ImageBackground } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView, Platform, Image, ImageBackground, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { auth } from '../services/firebase';
 import { SettingsContext } from '../contexts/SettingsData';
@@ -24,6 +24,12 @@ const HomeContent = () => {
         }
         fetchRunData();
     }, []);
+
+    useEffect(() => {
+        if (progress >= 1) {
+            handleGoalReached();
+        }
+    }, [progress]);
 
     const fetchRunData = async () => {
         try {
@@ -83,6 +89,18 @@ const HomeContent = () => {
         } catch (error) {
             console.error('Error requesting location permissions:', error);
         }
+    };
+
+    const handleGoalReached = () => {
+        Alert.alert(
+            'Congratulations!',
+            'You have reached your distance goal!',
+            [
+                { text: 'OK', onPress: () => console.log('OK Pressed') },
+                { text: 'Set New Goal', onPress: () => setModalVisible(true) }
+            ],
+            { cancelable: false }
+        );
     };
 
     return (
@@ -329,6 +347,3 @@ const styles = StyleSheet.create({
 });
 
 export default HomeContent;
-
-
-
