@@ -38,6 +38,7 @@ const HomeContent = () => {
 
   const selectDistance = (value) => {
     setDistanceGoal(value);
+    console.log(`Distance goal chosen is ${distanceGoal}`)
     setModalVisible(false); // Close the modal after selection (if using a modal)
   };
 

@@ -118,7 +118,11 @@ const RunCalendar = () => {
             </View>
             <View style={styles.runDetail}>
               <Text style={styles.runLabel}>Calories:</Text>
-              <Text style={styles.runValue}>{item.calories}</Text>
+              <Text style={styles.runValue}>{item.calories} cal</Text>
+            </View>
+            <View style={styles.runDetail}>
+              <Text style={styles.runLabel}>Max Speed:</Text>
+              <Text style={styles.runValue}>{item.maxSpeed} m/s</Text>
             </View>
           </View>
   
