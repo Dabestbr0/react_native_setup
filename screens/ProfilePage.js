@@ -137,7 +137,10 @@ const ProfilePage = () => {
 
   const handleSignOut = async () => {
     try {
-      await auth.signOut();
+      // need to add a function to save data into cloud storage here
+      // the operations may execute in parallel rather than sequentially. use await
+      //await 
+      await auth.signOut(); 
       await clearStorage(); // Clear AsyncStorage on sign out
       navigation.replace("Login");
     } catch (error) {

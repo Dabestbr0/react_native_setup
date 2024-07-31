@@ -1,6 +1,7 @@
 // src/services/storage.js
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { auth, db } from './firebase'; // Ensure this path is correct
+import { doc, setDoc, getDoc, collection, query, where, getDocs, addDoc } from "firebase/firestore";
 
 export const storeRunData = async (runData) => {
     try {
