@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, Dimensions, ScrollView, Button } from 'react-native';
+import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, Dimensions, ScrollView, Button, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LineChart } from 'react-native-chart-kit';
-import { useRoute } from '@react-navigation/native';
+import { useRoute, useNavigation } from '@react-navigation/native';
 import { auth } from '../services/firebase';
 
 const ProfilePage = () => {
@@ -13,6 +13,16 @@ const ProfilePage = () => {
   const [profilePic, setProfilePic] = useState(null);
   const [numberOfRuns, setNumberOfRuns] = useState(0);
   const [runData, setRunData] = useState([]);
+
+  const navigation = useNavigation(); 
+
+  const handleSignOut = () => {
+    auth.signOut()
+      .then(() => {
+        navigation.replace("Login");
+      })
+      .catch(error => alert(error.message));
+  };
   
   const route = useRoute();
   const [firstName, setFirstName] = useState('');
@@ -145,7 +155,7 @@ const ProfilePage = () => {
           <ScrollView horizontal>
             <LineChart
               data={formatRunDataForChart()}
-              width={Dimensions.get('window').width * 2} // Double the width for horizontal scrolling
+              width={Dimensions.get('window').width * 2} 
               height={300}
               yAxisLabel=""
               yAxisSuffix="m"
@@ -161,7 +171,7 @@ const ProfilePage = () => {
                 },
                 propsForDots: (dot, index) => {
                   let color = '#ffa726';
-                  if (index % 2 === 1) { // Time data is the second dataset
+                  if (index % 2 === 1) { 
                     color = 'green';
                   }
                   return {
@@ -178,6 +188,17 @@ const ProfilePage = () => {
         ) : (
           <Text style={styles.noDataText}>No run data available</Text>
         )}
+
+         {/* Sign out button */}
+         <View style={styles.footer}>
+          <TouchableOpacity
+            onPress={handleSignOut}
+            style={styles.signOutButton}
+          >
+            <Text style={styles.buttonText}>Sign out</Text>
+          </TouchableOpacity>
+        </View>
+
       </ScrollView>
     </SafeAreaView>
   );
@@ -271,6 +292,27 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#888',
     marginTop: 20,
+  },
+  footer: {
+    alignItems: 'center',
+    marginBottom: 30,
+  },
+  signOutButton: {
+    backgroundColor: '#FF8C00', // Tomato color
+    padding: 15,
+    borderRadius: 10,
+    width: '60%',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 5,
+    elevation: 5,
+  },
+  buttonText: {
+    color: '#FFF',
+    fontWeight: '700',
+    fontSize: 16,
   },
 });
 

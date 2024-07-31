@@ -1,13 +1,10 @@
-import React, { useState, useContext } from 'react';
-import { View, Text, Switch, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
+import React, { useContext } from 'react';
+import { View, Text, Switch, StyleSheet, Dimensions, ScrollView } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { SettingsContext } from '../contexts/SettingsData';
 import Icon from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { auth } from '../services/firebase';
-import { useNavigation } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SettingsScreen = () => {
   const { 
@@ -18,25 +15,15 @@ const SettingsScreen = () => {
     isRandomEnabled, setIsRandomEnabled
   } = useContext(SettingsContext);
 
-  const navigation = useNavigation();
-
   const toggleVibrationSwitch = () => setIsVibrationEnabled(previousState => !previousState);
   const toggleAudioSwitch = () => setIsAudioEnabled(previousState => !previousState);
   const toggleRandomSwitch = () => setIsRandomEnabled(previousState => !previousState);
 
-  const handleSignOut = () => {
-    auth.signOut()
-      .then(() => {
-        navigation.replace("Login");
-      })
-      .catch(error => alert(error.message));
-  };
-
   const screenWidth = Dimensions.get('window').width;
 
   return (
-    <View style={styles.background}>
-      <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.background}>
+      <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>SYSTEM SETTINGS</Text>
         
         <View style={styles.setting}>
@@ -106,15 +93,8 @@ const SettingsScreen = () => {
             thumbTintColor="#FF7043"
           />
         </View>
-
-        <TouchableOpacity
-          onPress={handleSignOut}
-          style={styles.signOutButton}
-        >
-          <Text style={styles.buttonText}>SIGN OUT</Text>
-        </TouchableOpacity>
-      </SafeAreaView>
-    </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
@@ -124,7 +104,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F7F8FA', // Light background color
   },
   container: {
-    flex: 1,
+    flexGrow: 1,
     width: '100%',
     padding: 20,
   },
@@ -176,26 +156,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     paddingHorizontal: 15,
   },
-  signOutButton: {
-    backgroundColor: '#FF0000', // Red color for sign out button
-    padding: 15,
-    borderRadius: 10,
-    width: '100%',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.8,
-    shadowRadius: 5,
-    elevation: 5,
-    alignSelf: 'center', // Center the button horizontally
-    marginTop: 8,
-  },
-  buttonText: {
-    color: '#FFF',
-    fontWeight: '700',
-    fontSize: 18,
-  },
 });
 
 export default SettingsScreen;
-
