@@ -6,51 +6,59 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LineChart } from 'react-native-chart-kit';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import { auth } from '../services/firebase';
+import { auth, db } from '../services/firebase';
+import { doc, setDoc, getDoc, collection, query, where, getDocs, addDoc } from "firebase/firestore";
 
+// Function to clear AsyncStorage
+const clearStorage = async () => {
+  try {
+    await AsyncStorage.clear();
+    console.log('AsyncStorage cleared.');
+  } catch (error) {
+    console.error('Failed to clear AsyncStorage:', error);
+  }
+};
 const ProfilePage = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [profilePic, setProfilePic] = useState(null);
   const [numberOfRuns, setNumberOfRuns] = useState(0);
   const [runData, setRunData] = useState([]);
-
-  const navigation = useNavigation(); 
-
-  const handleSignOut = () => {
-    auth.signOut()
-      .then(() => {
-        navigation.replace("Login");
-      })
-      .catch(error => alert(error.message));
-  };
-  
-  const route = useRoute();
   const [firstName, setFirstName] = useState('');
+  const navigation = useNavigation();
+  const route = useRoute();
 
   useEffect(() => {
     const fetchUserData = async () => {
-      if (auth.currentUser?.displayName) {
-        const nameParts = auth.currentUser.displayName.split(' ');
-        setFirstName(nameParts[0]);
+      const user = auth.currentUser;
+      if (user) {
+        const userDocRef = doc(db, "users", user.uid);
+        const userDoc = await getDoc(userDocRef);
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          setFirstName(userData.firstName || '');
+          setProfilePic(userData.profilePic || '');
+
+          await AsyncStorage.setItem('name', userData.firstName || '');
+          await AsyncStorage.setItem('profilePic', userData.profilePic || '');
+
+          const runs = await fetchRunData(user.uid);
+          setRunData(runs);
+          setNumberOfRuns(runs.length);
+        }
       }
-
-      const storedName = await AsyncStorage.getItem('name');
-      const storedProfilePic = await AsyncStorage.getItem('profilePic');
-      if (storedName) setFirstName(storedName.split(' ')[0]);
-      if (storedProfilePic) setProfilePic(storedProfilePic);
-
-      const runs = await fetchRunData();
-      setRunData(runs);
-      setNumberOfRuns(runs.length);
     };
 
     fetchUserData();
   }, []);
 
-  const fetchRunData = async () => {
+  const fetchRunData = async (userId) => {
     try {
-      const storedRuns = await AsyncStorage.getItem('runHistory');
-      return storedRuns ? JSON.parse(storedRuns) : [];
+      const runsCollection = collection(db, "runHistory");
+      const q = query(runsCollection, where("userId", "==", userId));
+      const querySnapshot = await getDocs(q);
+      const runs = querySnapshot.docs.map(doc => doc.data());
+      await AsyncStorage.setItem('runHistory', JSON.stringify(runs));
+      return runs;
     } catch (error) {
       console.error('Failed to fetch run data', error);
       return [];
@@ -67,13 +75,24 @@ const ProfilePage = () => {
     if (!result.canceled) {
       const uri = result.assets[0].uri;
       setProfilePic(uri);
-      await AsyncStorage.setItem('profilePic', uri);
+
+      const user = auth.currentUser;
+      if (user) {
+        const userDocRef = doc(db, "users", user.uid);
+        await setDoc(userDocRef, { profilePic: uri }, { merge: true });
+        await AsyncStorage.setItem('profilePic', uri);
+      }
     }
   };
 
   const saveProfile = async () => {
-    await AsyncStorage.setItem('name', firstName);
-    setIsEditMode(false);
+    const user = auth.currentUser;
+    if (user) {
+      const userDocRef = doc(db, "users", user.uid);
+      await setDoc(userDocRef, { firstName: firstName }, { merge: true });
+      await AsyncStorage.setItem('name', firstName);
+      setIsEditMode(false);
+    }
   };
 
   const formatTime = (time) => {
@@ -82,7 +101,7 @@ const ProfilePage = () => {
     const hours = Math.floor(totalSeconds / 3600);
     const mins = Math.floor((totalSeconds % 3600) / 60);
     const secs = Math.floor(totalSeconds % 60);
-    return hours > 0 
+    return hours > 0
       ? `${hours}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
       : `${mins}:${secs.toString().padStart(2, '0')}`;
   };
@@ -114,6 +133,16 @@ const ProfilePage = () => {
       ],
       legend: ["Distance (m)", "Time (min)"],
     };
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await auth.signOut();
+      await clearStorage(); // Clear AsyncStorage on sign out
+      navigation.replace("Login");
+    } catch (error) {
+      alert(error.message);
+    }
   };
 
   return (
@@ -155,7 +184,7 @@ const ProfilePage = () => {
           <ScrollView horizontal>
             <LineChart
               data={formatRunDataForChart()}
-              width={Dimensions.get('window').width * 2} 
+              width={Dimensions.get('window').width * 2}
               height={300}
               yAxisLabel=""
               yAxisSuffix="m"
@@ -171,7 +200,7 @@ const ProfilePage = () => {
                 },
                 propsForDots: (dot, index) => {
                   let color = '#ffa726';
-                  if (index % 2 === 1) { 
+                  if (index % 2 === 1) {
                     color = 'green';
                   }
                   return {
@@ -188,9 +217,8 @@ const ProfilePage = () => {
         ) : (
           <Text style={styles.noDataText}>No run data available</Text>
         )}
-
-         {/* Sign out button */}
-         <View style={styles.footer}>
+        {/* Sign out button */}
+        <View style={styles.footer}>
           <TouchableOpacity
             onPress={handleSignOut}
             style={styles.signOutButton}
@@ -198,7 +226,6 @@ const ProfilePage = () => {
             <Text style={styles.buttonText}>Sign out</Text>
           </TouchableOpacity>
         </View>
-
       </ScrollView>
     </SafeAreaView>
   );
@@ -223,96 +250,72 @@ const styles = StyleSheet.create({
   },
   greeting: {
     fontSize: 24,
-    color: '#FFA500',
+    fontWeight: 'bold',
   },
   boldText: {
-    fontSize: 24,
     fontWeight: 'bold',
   },
   imageContainer: {
-    position: 'relative',
-    justifyContent: 'center',
     alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
   },
   profileImage: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#E0E0E0',
   },
   editIconContainer: {
     position: 'absolute',
     bottom: 0,
     right: 0,
-    backgroundColor: '#FFA500',
+    backgroundColor: '#000000',
     borderRadius: 15,
     padding: 5,
   },
-  input: {
-    fontSize: 24,
-    color: '#FFA500',
-    borderBottomWidth: 1,
-    borderColor: '#FFA500',
-  },
   sectionTitle: {
     fontSize: 20,
-    color: '#FFA500',
-    marginTop: 40,
+    fontWeight: 'bold',
+    marginVertical: 10,
   },
   statsContainer: {
     flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 20,
+    justifyContent: 'space-between',
+    marginBottom: 20,
   },
   statBox: {
-    width: '50%',
-    backgroundColor: '#FFFFFF',
-    padding: 20,
-    borderRadius: 10,
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#FFA500',
   },
   statValue: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#FFA500',
   },
   statLabel: {
-    fontSize: 16,
-    color: '#FFA500',
+    fontSize: 14,
+    color: '#666666',
   },
   chart: {
     marginVertical: 8,
     borderRadius: 16,
-    alignSelf: 'center',
   },
   noDataText: {
     textAlign: 'center',
     fontSize: 16,
-    color: '#888',
-    marginTop: 20,
+    color: '#666666',
   },
   footer: {
-    alignItems: 'center',
-    marginBottom: 30,
+    marginTop: 20,
   },
   signOutButton: {
-    backgroundColor: '#FF8C00', // Tomato color
-    padding: 15,
-    borderRadius: 10,
-    width: '60%',
+    backgroundColor: '#FF3B30',
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.8,
-    shadowRadius: 5,
-    elevation: 5,
   },
   buttonText: {
-    color: '#FFF',
-    fontWeight: '700',
-    fontSize: 16,
+    color: '#FFFFFF',
+    fontWeight: 'bold',
   },
 });
 
