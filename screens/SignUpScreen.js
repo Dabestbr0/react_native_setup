@@ -1,30 +1,27 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, Image } from 'react-native';
 import { auth } from '../services/firebase';
-import { signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { useNavigation } from '@react-navigation/native';
 
-const LoginScreen = () => {
+const SignUpScreen = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
 
     const navigation = useNavigation();
 
-    useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, user => {
-            if (user) {
-                navigation.replace("Main");
-            }
-        });
-
-        return unsubscribe;
-    }, []);
-
-    const handleLogin = () => {
-        signInWithEmailAndPassword(auth, email, password)
-            .then(userCredentials => {
+    const handleSignUp = () => {
+        const fullName = `${firstName} ${lastName}`;
+        createUserWithEmailAndPassword(auth, email, password)
+            .then(async userCredentials => {
                 const user = userCredentials.user;
-                console.log('Logged in with', user.email);
+                await updateProfile(user, {
+                    displayName: fullName
+                });
+                console.log('Registered with', user.email);
+                navigation.navigate('Main', { screen: 'ProfilePage', params: { firstName } }); // Navigate with firstName
             })
             .catch(error => alert(error.message));
     };
@@ -34,10 +31,24 @@ const LoginScreen = () => {
             <KeyboardAvoidingView style={styles.container} behavior="padding">
                 <Text style={styles.appName}>SPRINT O' CLOCK</Text>
                 <Image source={require('../assets/logo2.png')} style={styles.runnerImage} />
-                <Text style={styles.headerText}>Log In</Text>
-                <Text style={styles.logoPhrase}>Welcome Back, Runner!</Text>
+                <Text style={styles.headerText}>Sign Up</Text>
+                <Text style={styles.logoPhrase}>Join Us and Start Running!</Text>
                 <View style={styles.boxContainer}>
                     <View style={styles.inputContainer}>
+                        <TextInput
+                            placeholder="First Name"
+                            value={firstName}
+                            onChangeText={text => setFirstName(text)}
+                            style={styles.input}
+                            placeholderTextColor="#555"
+                        />
+                        <TextInput
+                            placeholder="Last Name"
+                            value={lastName}
+                            onChangeText={text => setLastName(text)}
+                            style={styles.input}
+                            placeholderTextColor="#555"
+                        />
                         <TextInput
                             placeholder="Email"
                             value={email}
@@ -54,11 +65,11 @@ const LoginScreen = () => {
                             placeholderTextColor="#555"
                         />
                     </View>
-                    <TouchableOpacity onPress={handleLogin} style={styles.button}>
-                        <Text style={styles.buttonText}>Sign In</Text>
+                    <TouchableOpacity onPress={handleSignUp} style={styles.button}>
+                        <Text style={styles.buttonText}>Sign Up</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => navigation.navigate('SignUp')} style={styles.signUpContainer}>
-                        <Text style={styles.signUpText}>Don't have an account? <Text style={styles.signUpLink}>Sign Up</Text></Text>
+                    <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.signInContainer}>
+                        <Text style={styles.signInText}>Already have an account? <Text style={styles.signInLink}>Sign In</Text></Text>
                     </TouchableOpacity>
                 </View>
             </KeyboardAvoidingView>
@@ -142,19 +153,19 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         fontSize: 16,
     },
-    signUpContainer: {
+    signInContainer: {
         marginTop: 20,
     },
-    signUpText: {
+    signInText: {
         color: '#0D1B2A',
         fontSize: 14,
         textAlign: 'center',
     },
-    signUpLink: {
+    signInLink: {
         color: '#1E90FF',
         fontWeight: '700',
         fontSize: 14,
     },
 });
 
-export default LoginScreen;
+export default SignUpScreen;

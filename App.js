@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import LoginScreen from './screens/LoginScreen';
+import SignUpScreen from './screens/SignUpScreen';
 import HomeContent from './screens/HomeContent';
 import RunTimerStartScreen from './screens/RunTimerScreen';
 import RunCalendar from './screens/RunCalendar';
@@ -18,8 +19,9 @@ export default function App() {
     <SettingsProvider>
       <NavigationContainer>
         <Stack.Navigator initialRouteName="Login">
-          <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
           <Stack.Screen name="Main" component={BottomTabNavigator} options={{ headerShown: false }} />
+          <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="SignUp" component={SignUpScreen} options={{ headerShown: false }} />
           <Stack.Screen name="RunTimerStart" component={RunTimerStartScreen} />
           <Stack.Screen name="RunHistory" component={RunCalendar} />
         </Stack.Navigator>

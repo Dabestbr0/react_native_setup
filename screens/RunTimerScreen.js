@@ -1,15 +1,15 @@
-import React, { useContext, useState, useEffect, useRef, useCallback } from 'react';
+import React, { useContext, useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Image, Vibration, Button, Dimensions } from 'react-native';
 import { Audio } from 'expo-av';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { SettingsContext } from '../contexts/SettingsData';
 import * as Progress from 'react-native-progress';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { format } from 'date-fns';
 import * as Location from 'expo-location';
-import { Accelerometer } from 'expo-sensors';
+import { Pedometer } from 'expo-sensors';
 
-const RunTimerStart2 = () => {
+const RunTimerStart = () => {
   const navigation = useNavigation();
   const {
     OnYourMark_interval,
@@ -26,7 +26,7 @@ const RunTimerStart2 = () => {
   const [onYourMarkSound, setOnYourMarkSound] = useState(null);
   const [getSetSound, setGetSetSound] = useState(null);
   const [goSound, setGoSound] = useState(null);
-  const [runningPosition, setRunningPosition] = useState(require('../assets/images/onyourmarksposition.png'));
+  const [runningPosition, setRunningPosition] = useState(require('../assets/images/ready.png'));
   const [running, setRunning] = useState(false);
   const [stopwatch, setStopwatch] = useState(0);
   const [isStopwatchRunning, setIsStopwatchRunning] = useState(false);
@@ -35,31 +35,35 @@ const RunTimerStart2 = () => {
   const stopwatchIntervalRef = useRef(null);
   const timerIntervalRef = useRef(null);
 
-  // State variables for tracking
-  const [gpsDistance, setGpsDistance] = useState(0);
-  const [steps, setSteps] = useState(0);
+  // State variables for step tracking
   const [location, setLocation] = useState(null);
-  const [caloriesBurnt, setCaloriesBurnt] = useState(0);
-  const calorieFactorPerMeter = 1.36 / 1000; 
+  const [errorMsg, setErrorMsg] = useState(null);
+  const [stepCount, setStepCount] = useState(0);
+  const [pedometerAvailability, setPedometerAvailability] = useState("");
   const [locationSubscription, setLocationSubscription] = useState(null);
-  const [accelerometerSubscription, setAccelerometerSubscription] = useState(null);
-  const [maxSpeed, setMaxSpeed] = useState(0);
-  const [avgSpeed, setAvgSpeed] = useState(0);  // Might be added later.
-  const windowHeight = Dimensions.get('window').height;
+  const [pedometerSubscription, setPedometerSubscription] = useState(null);
 
+  const windowHeight = Dimensions.get("window").height;
+  const stepsToMeters = 0.762;
+  const distanceFromSteps = stepCount * stepsToMeters;
+  const distanceCovered = distanceFromSteps.toFixed(2);
+  const caloriesBurnt = ((distanceCovered * 0.5) / 1000).toFixed(2);
 
+  // Effect to randomize Get Set interval
   useEffect(() => {
     if (isRandomEnabled) {
       setGetSet_Interval(Math.floor(Math.random() * 10) + 1);
     }
   }, [isRandomEnabled, setGetSet_Interval]);
 
+  // Effect to trigger vibration
   useEffect(() => {
     if (isVibrationEnabled) {
       Vibration.vibrate();
     }
   }, [isVibrationEnabled]);
 
+  // Effect to load audio files
   useEffect(() => {
     const loadSounds = async () => {
       const onYourMark = new Audio.Sound();
@@ -94,30 +98,31 @@ const RunTimerStart2 = () => {
     };
   }, []);
 
+  // Effect to handle timer logic and running status
   useEffect(() => {
     if (timer === 0) {
-      if (word === "On Your Marks...") {
+      if (word === 'On Your Marks...') {
         Vibration.vibrate();
-        setWord("Get Set...");
+        setWord('Get Set...');
         setTimer(GetSet_interval);
         setProgress(1);
-        setRunningPosition(require("../assets/images/getsetposition.png"));
+        setRunningPosition(require('../assets/images/set.png'));
         getSetSound && getSetSound.playAsync();
       } else if (word === "Get Set...") {
         setWord("GO!");
         setTimer(0);
         setProgress(1);
-        setRunningPosition(require("../assets/images/goposition.png"));
+        setRunningPosition(require('../assets/images/go.png'));
         goSound && goSound.playAsync();
         setRunning(true);
         setIsStopwatchRunning(true);
         setStartTime(new Date());
-        startTracking();
+        startTracking(); // Start tracking steps and location
       }
     }
 
     timerIntervalRef.current = setInterval(() => {
-      setTimer((prevTime) => {
+      setTimer(prevTime => {
         const newTime = prevTime - 1;
         setProgress(newTime / OnYourMark_interval);
         return newTime;
@@ -127,172 +132,103 @@ const RunTimerStart2 = () => {
     return () => clearInterval(timerIntervalRef.current);
   }, [timer, word, GetSet_interval, getSetSound, goSound, OnYourMark_interval]);
 
+  // Effect to handle stopwatch logic
   useEffect(() => {
     stopwatchIntervalRef.current = setInterval(() => {
       if (isStopwatchRunning) {
-        setStopwatch((prevTime) => prevTime + 1);
+        setStopwatch(prevTime => prevTime + 1);
       }
     }, 10);
 
     return () => clearInterval(stopwatchIntervalRef.current);
   }, [isStopwatchRunning]);
 
-  useEffect(() => {
-    if (!location) {
-   //   console.log("Waiting for GPS to initialize...");
-    } else {
-   //   console.log("GPS is working:", location);
-    }
-  }, [location]);
-
-  // End the run if GPS distance meets the goal
-  useEffect(() => {
-    if (distanceGoal != null && gpsDistance >= distanceGoal && word === "GO!") {
-      endRun();
-    }
-  }, [gpsDistance, distanceGoal, word]);
-
-  const previousLocationRef = useRef(null);
-
+  // Function to start tracking location and steps
   const startTracking = async () => {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+      setErrorMsg('Permission to access location was denied');
+      return;
+    }
+
     const locSubscription = await Location.watchPositionAsync(
       {
-        accuracy: Location.Accuracy.BestForNavigation,
-        timeInterval: 500,
+        accuracy: Location.Accuracy.High,
+        timeInterval: 1000,
         distanceInterval: 1,
       },
       (newLocation) => {
-        //    console.log('New location received:', newLocation);
-        // Get the max Speed
-        const speed = newLocation.coords.speed; // Speed is in meters/second
-      //  console.log("New speed received:", speed);
-
-        // Update maxSpeed if the new speed is greater
-        setMaxSpeed((prevMaxSpeed) => {
-          if (speed > prevMaxSpeed) {
-         /*   console.log(
-              `New Max Speed: ${speed.toFixed(
-                2
-              )} (Previous: ${prevMaxSpeed.toFixed(2)})` 
-            ); */
-            return speed; // Return the new max speed
-          }
-          return prevMaxSpeed; // Return the previous max speed
-        });
-
-        // Get the distance tracked
-        if (previousLocationRef.current) {
-          // Get the Distance
-          const dist = haversineDistance(
-            previousLocationRef.current.coords.latitude,
-            previousLocationRef.current.coords.longitude,
-            newLocation.coords.latitude,
-            newLocation.coords.longitude
-          );
-          setGpsDistance((gpsDistance) => gpsDistance + dist);
-        } else {
-          // Set the previous location to the first received location
-          previousLocationRef.current = newLocation; // Update the ref
-         // console.log("Previous location set:", newLocation);
-        }
+        setLocation(newLocation);
       }
     );
     setLocationSubscription(locSubscription);
 
-    Accelerometer.setUpdateInterval(100);
-    const accSubscription = Accelerometer.addListener((accelerometerData) => {
-      const acceleration = Math.sqrt(
-        accelerometerData.x ** 2 +
-          accelerometerData.y ** 2 +
-          accelerometerData.z ** 2
-      );
-      const threshold = 1.2; //Adjust value
-      if (acceleration > threshold) {
-        setSteps((prevSteps) => prevSteps + 1);
-      }
+    const pedSubscription = Pedometer.watchStepCount((result) => {
+      setStepCount(result.steps);
     });
-    setAccelerometerSubscription(accSubscription);
+    setPedometerSubscription(pedSubscription);
+
+    Pedometer.isAvailableAsync().then(
+      (result) => {
+        setPedometerAvailability(String(result));
+      },
+      (error) => {
+        setPedometerAvailability(error);
+      }
+    );
   };
 
-  useEffect(() => {
-//    console.log("Max Speed updated to:", maxSpeed.toFixed(2));
-  }, [maxSpeed]);
-
+  // Function to stop tracking location and steps
   const stopTracking = () => {
     if (locationSubscription) {
       locationSubscription.remove();
       setLocationSubscription(null);
     }
-    if (accelerometerSubscription) {
-      accelerometerSubscription.remove();
-      setAccelerometerSubscription(null);
+    if (pedometerSubscription) {
+      pedometerSubscription.remove();
+      setPedometerSubscription(null);
     }
   };
 
-  const haversineDistance = (lat1, lon1, lat2, lon2) => {
-    const toRad = (angle) => (angle * Math.PI) / 180;
-    const R = 6371e3;
-
-    const φ1 = toRad(lat1);
-    const φ2 = toRad(lat2);
-    const Δφ = toRad(lat2 - lat1);
-    const Δλ = toRad(lon2 - lon1);
-
-    const a =
-      Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-      Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-    return R * c;
-  };
-
-  useEffect(() => {
-    setCaloriesBurnt((gpsDistance * calorieFactorPerMeter).toFixed(2));
-  }, [gpsDistance]);
-
+  // Function to handle end of run
   const endRun = async () => {
     setIsStopwatchRunning(false);
     clearInterval(stopwatchIntervalRef.current);
     clearInterval(timerIntervalRef.current);
-    stopTracking();
+    stopTracking(); // Stop tracking steps and location
 
     const finishTime = new Date();
     setFinishTime(finishTime);
 
-    const todayDate = format(new Date(), "yyyy-MM-dd");
+    const todayDate = format(new Date(), 'yyyy-MM-dd');
     const runData = {
       date: todayDate,
       startTime: startTime.toLocaleTimeString(),
       finishTime: finishTime.toLocaleTimeString(),
       timeElapsed: formatTime(stopwatch),
-      steps: steps,
-      distance: gpsDistance.toFixed(2),
+      steps: stepCount,
+      distance: distanceCovered,
       calories: caloriesBurnt,
-      maxSpeed: maxSpeed.toFixed(2),
     };
 
     try {
-      const storedRuns = await AsyncStorage.getItem("runHistory");
+      const storedRuns = await AsyncStorage.getItem('runHistory');
       const runHistory = storedRuns ? JSON.parse(storedRuns) : [];
       runHistory.push(runData);
 
-      await AsyncStorage.setItem("runHistory", JSON.stringify(runHistory));
+      await AsyncStorage.setItem('runHistory', JSON.stringify(runHistory));
     } catch (error) {
-      console.error("Failed to save run data", error);
+      console.error('Failed to save run data', error);
     }
 
     setRunning(false);
-    setGpsDistance(0);
-    setSteps(0);
-    setCaloriesBurnt(0);
-    setMaxSpeed(0);
-    navigation.navigate("RunHistory");
+    navigation.navigate('Home');
   };
 
   const formatTime = (time) => {
-    const minutes = String(Math.floor(time / 6000)).padStart(2, "0");
-    const seconds = String(Math.floor((time % 6000) / 100)).padStart(2, "0");
-    const milliseconds = String(time % 100).padStart(2, "0");
+    const minutes = String(Math.floor(time / 6000)).padStart(2, '0');
+    const seconds = String(Math.floor((time % 6000) / 100)).padStart(2, '0');
+    const milliseconds = String(time % 100).padStart(2, '0');
     return `${minutes}:${seconds}:${milliseconds}`;
   };
 
@@ -303,12 +239,10 @@ const RunTimerStart2 = () => {
         size={200}
         progress={progress}
         showsText={true}
-        formatText={() =>
-          isStopwatchRunning ? formatTime(stopwatch) : timer.toString()
-        }
+        formatText={() => (isStopwatchRunning ? formatTime(stopwatch) : timer.toString())}
         textStyle={styles.progressText}
         thickness={10}
-        color="#FFD700"
+        color="#FF8C00"
         borderWidth={0}
       />
       <Image
@@ -316,17 +250,14 @@ const RunTimerStart2 = () => {
         style={styles.image}
         resizeMode="contain"
       />
-      {running && <Button title="Stop Run" onPress={endRun} />}
+      {running && (
+        <Button title="Stop Run" onPress={endRun} />
+      )}
       {running && (
         <View style={styles.infoContainer}>
-          <Text style={styles.infoText}>Steps: {steps}</Text>
-          <Text style={styles.infoText}>
-            Distance: {gpsDistance.toFixed(2)} meters
-          </Text>
-          <Text style={styles.infoText}>Calories: {caloriesBurnt} cal</Text>
-          <Text style={styles.infoText}>
-            Max Speed: {maxSpeed.toFixed(2)} meters per second
-          </Text>
+          <Text style={styles.infoText}>Steps: {stepCount}</Text>
+          <Text style={styles.infoText}>Distance: {distanceCovered} meters</Text>
+          <Text style={styles.infoText}>Calories: {caloriesBurnt} kcal</Text>
         </View>
       )}
     </View>
@@ -337,19 +268,23 @@ const RunTimerStart2 = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#242c45",
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#FFF',
   },
   bold: {
     fontSize: 32,
-    color: "#FFD700",
+    color: '#FF8C00',
     marginBottom: 10,
     fontWeight: "bold",
   },
   progressText: {
     fontSize: 40,
     color: "#FFD700",
+  },
+  progressText: {
+    fontSize: 40,
+    color: '#FF8C00',
   },
   image: {
     width: 200,
@@ -361,8 +296,8 @@ const styles = StyleSheet.create({
   },
   infoText: {
     fontSize: 18,
-    color: "#FFD700",
+    color: '#FF8C00',
   },
 });
 
-export default RunTimerStart2;
+export default RunTimerStart; // Export the RunTimerStart component
