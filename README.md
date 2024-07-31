@@ -15,13 +15,15 @@ Example: C:\Users\<yourusername>\RNprojects
 Open the extracted folder in VSCode
 
 
-Go to terminal, copy and paste all of these packages to install them
+select all of these commands, copy them and paste them into the terminal:
+
+npm install expo
 
 npm install @react-navigation/native 
 
 npm install @react-navigation/material-top-tabs
 
-npm install react-native-screens
+npm install @react-navigation/stack
 
 npm install @react-navigation/bottom-tabs
 
@@ -37,16 +39,25 @@ npm install react-native-paper
 
 npm install @react-native-community/slider
 
-npm install react-native-sound
+npm install expo-av
 
-expo install expo-location
+npm install firebase
 
-npm install react-native-pager-view
+npm install @react-navigation/native-stack
 
-expo install react-native-maps
+npm install @react-navigation-calendars
 
-expo install @react-native-async-storage/async-storage @react-native-community/slider @react-navigation/bottom-tabs @react-navigation/material-top-tabs @react-navigation/native @react-navigation/native-stack @react-navigation/stack expo expo-av expo-location expo-status-bar firebase react react-native react-native-calendars react-native-gesture-handler react-native-maps react-native-pager-view react-native-paper react-native-reanimated react-native-safe-area-context react-native-screens react-native-vector-icons
+npm install react-native-maps 
 
+npm install expo-location
+
+npm install date-fns
+
+npm install expo-sensors
+
+npm install expo-localization
+
+npm install react-native-progress
 
 Next type in 'npm start' to run the app.
 
