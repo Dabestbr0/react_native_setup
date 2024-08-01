@@ -116,22 +116,6 @@ const ProfilePage = () => {
     };
   };
 
-<<<<<<< HEAD
-  const handleSignOut = async () => {
-    try {
-      // need to add a function to save data into cloud storage here
-      // the operations may execute in parallel rather than sequentially. use await
-      //await 
-      await auth.signOut(); 
-      await clearStorage(); // Clear AsyncStorage on sign out
-      navigation.replace("Login");
-    } catch (error) {
-      alert(error.message);
-    }
-  };
-
-=======
->>>>>>> Cesar_Test
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
