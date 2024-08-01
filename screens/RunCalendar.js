@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, Platform, Button, Alert, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Platform, Button, Alert, TouchableOpacity, Share } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Calendar } from 'react-native-calendars';
 import { useIsFocused } from '@react-navigation/native';
@@ -80,6 +80,28 @@ const RunCalendar = () => {
     );
   };
 
+  const shareRunDetails = async (run) => {
+    try {
+      const result = await Share.share({
+        message: `Run Details:\nDate: ${run.date}\nStart Time: ${run.startTime}\nEnd Time: ${run.finishTime}\nElapsed Time: ${formatElapsedTime(run.timeElapsed)}\nDistance: ${run.distance}m\nSteps: ${run.steps}\nCalories: ${run.calories}`,
+      });
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
+  const renderSummary = () => {
+    const totalDistance = runHistory.reduce((sum, run) => sum + parseFloat(run.distance), 0);
+    const totalCalories = runHistory.reduce((sum, run) => sum + parseFloat(run.calories), 0);
+    return (
+      <View style={styles.summaryContainer}>
+        <Text style={styles.summaryText}>Total Runs: {runHistory.length}</Text>
+        <Text style={styles.summaryText}>Total Distance: {totalDistance.toFixed(2)} m</Text>
+        <Text style={styles.summaryText}>Total Calories: {totalCalories.toFixed(2)} kcal</Text>
+      </View>
+    );
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <Calendar
@@ -100,6 +122,7 @@ const RunCalendar = () => {
           textDayHeaderFontSize: 16,
         }}
       />
+      {renderSummary()}
       <FlatList
         data={runsForSelectedDate}
         keyExtractor={(item, index) => index.toString()}
@@ -134,11 +157,15 @@ const RunCalendar = () => {
               <Text style={styles.runLabel}>Calories:</Text>
               <Text style={styles.runValue}>{item.calories}</Text>
             </View>
-            <TouchableOpacity onPress={() => deleteRun(item)} style={styles.deleteButton}>
-              <Text style={styles.deleteButtonText}>DELETE RUN</Text>
-            </TouchableOpacity>
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity onPress={() => deleteRun(item)} style={styles.deleteButton}>
+                <Text style={styles.deleteButtonText}>DELETE RUN</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => shareRunDetails(item)} style={styles.shareButton}>
+                <Text style={styles.shareButtonText}>SHARE RUN</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-  
         )}
         ListEmptyComponent={<Text style={styles.noDataText}>No run history available for this date.</Text>}
       />
@@ -190,22 +217,50 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginTop: 10,
     alignItems: 'center',
+    flex: 1,
+    marginRight: 10,
   },
   deleteButtonText: {
     color: '#FFF',
     fontWeight: 'bold',
     fontSize: 16,
-    color: '#555',
   },
-  runValue: {
+  shareButton: {
+    backgroundColor: '#007BFF',
+    padding: 10,
+    borderRadius: 8,
+    marginTop: 10,
+    alignItems: 'center',
+    flex: 1,
+  },
+  shareButtonText: {
+    color: '#FFF',
+    fontWeight: 'bold',
     fontSize: 16,
-    color: '#000',
   },
   noDataText: {
     textAlign: 'center',
     marginTop: 20,
     fontSize: 16,
     color: '#888',
+  },
+  summaryContainer: {
+    padding: 16,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    marginHorizontal: 16,
+    marginTop: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 5,
+  },
+  summaryText: {
+    fontSize: 16,
+    color: '#333',
+    marginBottom: 8,
+    fontWeight: 'bold',
   },
 });
 

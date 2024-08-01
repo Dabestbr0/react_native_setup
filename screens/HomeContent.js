@@ -16,6 +16,8 @@ const HomeContent = () => {
     const [personalBest, setPersonalBest] = useState(null);
     const [progress, setProgress] = useState(0);
     const [firstName, setFirstName] = useState('');
+    const [timeGreeting, setTimeGreeting] = useState('');
+    const [dailyQuote, setDailyQuote] = useState('');
 
     useEffect(() => {
         if (auth.currentUser?.displayName) {
@@ -23,6 +25,8 @@ const HomeContent = () => {
             setFirstName(nameParts[0]);
         }
         fetchRunData();
+        setGreetingMessage();
+        setMotivationalQuote();
     }, []);
 
     useEffect(() => {
@@ -30,6 +34,29 @@ const HomeContent = () => {
             handleGoalReached();
         }
     }, [progress]);
+
+    const setGreetingMessage = () => {
+        const currentHour = new Date().getHours();
+        if (currentHour < 12) {
+            setTimeGreeting('Good Morning');
+        } else if (currentHour < 18) {
+            setTimeGreeting('Good Afternoon');
+        } else {
+            setTimeGreeting('Good Evening');
+        }
+    };
+
+    const setMotivationalQuote = () => {
+        const quotes = [
+            "Don’t watch the clock; do what it does. Keep going.",
+            "The only way to achieve the impossible is to believe it is possible.",
+            "You are your only limit.",
+            "Push yourself because no one else is going to do it for you.",
+            "Success is what comes after you stop making excuses."
+        ];
+        const today = new Date().getDate();
+        setDailyQuote(quotes[today % quotes.length]);
+    };
 
     const fetchRunData = async () => {
         try {
@@ -115,10 +142,10 @@ const HomeContent = () => {
             </View>
             <View style={styles.container}>
                 <View style={styles.userInfoContainer}>
-                    <Text style={styles.welcome}>Welcome, {firstName}!</Text>
+                    <Text style={styles.welcome}>{timeGreeting}, {firstName}!</Text>
                 </View>
                 <View style={styles.motivationContainer}>
-                    <Text style={styles.motivationText}>“The only way to achieve the impossible is to believe it is possible.”</Text>
+                    <Text style={styles.motivationText}>{dailyQuote}</Text>
                     <Progress.Bar 
                         progress={progress} 
                         width={null} 

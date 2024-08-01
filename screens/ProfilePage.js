@@ -12,6 +12,9 @@ const ProfilePage = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [profilePic, setProfilePic] = useState(null);
   const [numberOfRuns, setNumberOfRuns] = useState(0);
+  const [totalDistance, setTotalDistance] = useState(0);
+  const [averageSpeed, setAverageSpeed] = useState(0);
+  const [caloriesBurned, setCaloriesBurned] = useState(0);
   const [runData, setRunData] = useState([]);
 
   const navigation = useNavigation(); 
@@ -42,6 +45,16 @@ const ProfilePage = () => {
       const runs = await fetchRunData();
       setRunData(runs);
       setNumberOfRuns(runs.length);
+
+      // Calculate additional stats
+      const totalDist = runs.reduce((acc, run) => acc + parseFloat(run.distance), 0);
+      setTotalDistance(totalDist.toFixed(2));
+
+      const avgSpeed = totalDist / runs.length;
+      setAverageSpeed(avgSpeed.toFixed(2));
+
+      const totalCalories = runs.reduce((acc, run) => acc + parseFloat(run.calories), 0);
+      setCaloriesBurned(totalCalories.toFixed(2));
     };
 
     fetchUserData();
@@ -146,8 +159,24 @@ const ProfilePage = () => {
         <Text style={styles.sectionTitle}>Stats</Text>
         <View style={styles.statsContainer}>
           <View style={styles.statBox}>
+            <Icon name="walk" size={28} color="#FFA500" style={styles.statIcon} />
             <Text style={styles.statValue}>{numberOfRuns}</Text>
             <Text style={styles.statLabel}>Number of Runs</Text>
+          </View>
+          <View style={styles.statBox}>
+            <Icon name="footsteps" size={28} color="#FFA500" style={styles.statIcon} />
+            <Text style={styles.statValue}>{totalDistance} m</Text>
+            <Text style={styles.statLabel}>Total Distance</Text>
+          </View>
+          <View style={styles.statBox}>
+            <Icon name="speedometer" size={28} color="#FFA500" style={styles.statIcon} />
+            <Text style={styles.statValue}>{averageSpeed} m/s</Text>
+            <Text style={styles.statLabel}>Average Speed</Text>
+          </View>
+          <View style={styles.statBox}>
+            <Icon name="flame" size={28} color="#FFA500" style={styles.statIcon} />
+            <Text style={styles.statValue}>{caloriesBurned} kcal</Text>
+            <Text style={styles.statLabel}>Calories Burned</Text>
           </View>
         </View>
         <Text style={styles.sectionTitle}>Progress</Text>
@@ -155,10 +184,13 @@ const ProfilePage = () => {
           <ScrollView horizontal>
             <LineChart
               data={formatRunDataForChart()}
-              width={Dimensions.get('window').width * 2} 
+              width={Dimensions.get('window').width * 2} // Double the width for horizontal scrolling
               height={300}
               yAxisLabel=""
               yAxisSuffix="m"
+              xLabelsOffset={-5}
+              hidePointsAtIndex={[0]} // Hides point at index 0
+              yAxisInterval={1} // optional, defaults to 1
               chartConfig={{
                 backgroundColor: '#ffffff',
                 backgroundGradientFrom: '#ffffff',
@@ -169,20 +201,22 @@ const ProfilePage = () => {
                 style: {
                   borderRadius: 16,
                 },
-                propsForDots: (dot, index) => {
-                  let color = '#ffa726';
-                  if (index % 2 === 1) { 
-                    color = 'green';
-                  }
-                  return {
-                    r: '6',
-                    strokeWidth: '2',
-                    stroke: color,
-                  };
+                propsForBackgroundLines: {
+                  strokeDasharray: "", // Removes dashed lines
+                  strokeWidth: 1,
+                },
+                propsForDots: {
+                  r: "6",
+                  strokeWidth: "2",
+                  stroke: "#ffa726"
                 },
               }}
               bezier
               style={styles.chart}
+              accessor="distance"
+              horizontalLabelRotation={-45}
+              verticalLabelRotation={30}
+              segments={4} // Customize number of segments
             />
           </ScrollView>
         ) : (
@@ -195,7 +229,7 @@ const ProfilePage = () => {
             onPress={handleSignOut}
             style={styles.signOutButton}
           >
-            <Text style={styles.buttonText}>Sign out</Text>
+            <Text style={styles.buttonText}>SIGN OUT</Text>
           </TouchableOpacity>
         </View>
 
@@ -228,6 +262,7 @@ const styles = StyleSheet.create({
   boldText: {
     fontSize: 24,
     fontWeight: 'bold',
+    color: '#FFA500',
   },
   imageContainer: {
     position: 'relative',
@@ -255,32 +290,50 @@ const styles = StyleSheet.create({
     borderColor: '#FFA500',
   },
   sectionTitle: {
-    fontSize: 20,
+    fontSize: 24,
     color: '#FFA500',
     marginTop: 40,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    textTransform: 'uppercase',
+    letterSpacing: 1.5,
+    textShadowColor: '#000',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
   },
   statsContainer: {
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
     marginTop: 20,
   },
   statBox: {
-    width: '50%',
-    backgroundColor: '#FFFFFF',
+    width: '45%',
+    backgroundColor: '#FFEBE8', // Light coral background
     padding: 20,
-    borderRadius: 10,
+    borderRadius: 15,
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#FFA500',
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  statIcon: {
+    marginBottom: 10,
   },
   statValue: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#FFA500',
+    color: '#333',
   },
   statLabel: {
     fontSize: 16,
-    color: '#FFA500',
+    color: '#666',
+    marginTop: 5,
   },
   chart: {
     marginVertical: 8,
@@ -298,7 +351,7 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   signOutButton: {
-    backgroundColor: '#FF8C00', // Tomato color
+    backgroundColor: '#FF0000', // Tomato color
     padding: 15,
     borderRadius: 10,
     width: '60%',
