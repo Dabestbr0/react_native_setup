@@ -16,18 +16,20 @@ const HomeContent = () => {
     const [personalBest, setPersonalBest] = useState(null);
     const [progress, setProgress] = useState(0);
     const [firstName, setFirstName] = useState('');
-    const [timeGreeting, setTimeGreeting] = useState('');
-    const [dailyQuote, setDailyQuote] = useState('');
 
     useEffect(() => {
         if (auth.currentUser?.displayName) {
             const nameParts = auth.currentUser.displayName.split(' ');
             setFirstName(nameParts[0]);
         }
-        fetchRunData();
-        setGreetingMessage();
-        setMotivationalQuote();
-    }, []);
+        fetchRunData(); // Fetch data on component mount
+
+        const focusListener = navigation.addListener('focus', fetchRunData); // Refresh data when navigating back
+
+        return () => {
+            focusListener.remove();
+        };
+    }, [navigation]);
 
     useEffect(() => {
         if (progress >= 1) {
@@ -35,50 +37,28 @@ const HomeContent = () => {
         }
     }, [progress]);
 
-    const setGreetingMessage = () => {
-        const currentHour = new Date().getHours();
-        if (currentHour < 12) {
-            setTimeGreeting('Good Morning');
-        } else if (currentHour < 18) {
-            setTimeGreeting('Good Afternoon');
-        } else {
-            setTimeGreeting('Good Evening');
-        }
-    };
-
-    const setMotivationalQuote = () => {
-        const quotes = [
-            "Don’t watch the clock; do what it does. Keep going.",
-            "The only way to achieve the impossible is to believe it is possible.",
-            "You are your only limit.",
-            "Push yourself because no one else is going to do it for you.",
-            "Success is what comes after you stop making excuses."
-        ];
-        const today = new Date().getDate();
-        setDailyQuote(quotes[today % quotes.length]);
-    };
-
     const fetchRunData = async () => {
         try {
             const storedRuns = await AsyncStorage.getItem('runHistory');
             const runHistory = storedRuns ? JSON.parse(storedRuns) : [];
 
             let distance = 0;
+            let runCount = 0;
+            let bestRun = null;
+
             runHistory.forEach(run => {
                 distance += parseFloat(run.distance);
-            });
-
-            const bestRun = runHistory.reduce((best, run) => {
+                runCount++;
                 const [minutes, seconds, milliseconds] = run.timeElapsed.split(':').map(Number);
                 const totalMilliseconds = (minutes * 60 * 1000) + (seconds * 1000) + milliseconds;
-                if (!best || totalMilliseconds < best.totalMilliseconds) {
-                    return { ...run, totalMilliseconds };
+
+                if (!bestRun || totalMilliseconds < bestRun.totalMilliseconds) {
+                    bestRun = { ...run, totalMilliseconds };
                 }
-                return best;
-            }, null);
+            });
 
             setTotalDistance(distance.toFixed(2));
-            setTotalRuns(runHistory.length);
+            setTotalRuns(runCount);
             setPersonalBest(bestRun ? bestRun.timeElapsed : 'N/A');
             if (distanceGoal) {
                 setProgress(distance / distanceGoal);
@@ -142,10 +122,10 @@ const HomeContent = () => {
             </View>
             <View style={styles.container}>
                 <View style={styles.userInfoContainer}>
-                    <Text style={styles.welcome}>{timeGreeting}, {firstName}!</Text>
+                    <Text style={styles.welcome}>Welcome, {firstName}!</Text>
                 </View>
                 <View style={styles.motivationContainer}>
-                    <Text style={styles.motivationText}>{dailyQuote}</Text>
+                    <Text style={styles.motivationText}>“The only way to achieve the impossible is to believe it is possible.”</Text>
                     <Progress.Bar 
                         progress={progress} 
                         width={null} 

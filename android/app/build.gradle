@@ -85,7 +85,7 @@ android {
 
     namespace 'com.anonymous.FirstProject'
     defaultConfig {
-        applicationId 'com.anonymous.FirstProject'
+        applicationId 'com.cesar.reactnativesetup'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

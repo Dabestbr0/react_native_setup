@@ -1,4 +1,4 @@
-package com.anonymous.FirstProject
+package com.cesar.reactnativesetup
 
 import android.app.Application
 import android.content.res.Configuration
