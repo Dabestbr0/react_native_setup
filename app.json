@@ -17,7 +17,8 @@
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "This app uses your location to show your current position on the map."
+        "NSLocationWhenInUseUsageDescription": "This app uses your location to show your current position on the map.",
+        "NSLocationAlwaysUsageDescription": "This app needs your location to provide better services."
       }
     },
     "android": {
